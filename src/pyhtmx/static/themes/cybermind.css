@@ -1,0 +1,113 @@
+:root {
+  --pyh-font-ui: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
+  --pyh-font-headline: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
+  --pyh-font-mono: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
+
+  --pyh-space-1: 8px;
+  --pyh-space-2: 12px;
+  --pyh-space-3: 16px;
+  --pyh-space-4: 24px;
+  --pyh-space-5: 32px;
+
+  --pyh-radius: 24px;
+  --pyh-radius-sm: 12px;
+  --pyh-blur: 0px;
+  --pyh-shadow: 10px 10px 20px #1a1b28, -10px -10px 20px #3c3f5c;
+
+  --pyh-text: #edf2f4;
+  --pyh-text-muted: #8d99ae;
+
+  --pyh-background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(239, 35, 60, 0.12),
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 85% 10%,
+      rgba(255, 209, 102, 0.12),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 50% 90%,
+      rgba(141, 153, 174, 0.18),
+      transparent 55%
+    ),
+    #26283c;
+
+  --pyh-surface: rgba(43, 45, 66, 0.92);
+  --pyh-border: rgba(255, 255, 255, 0.06);
+
+  --pyh-chip-bg: rgba(255, 255, 255, 0.08);
+  --pyh-chip-border: rgba(255, 255, 255, 0.14);
+
+  --pyh-btn-text: #0b1a2a;
+  --pyh-btn-bg: #2b2d42;
+  --pyh-btn-primary-bg: linear-gradient(130deg, #5eead4, #38bdf8);
+  --pyh-btn-secondary-bg: linear-gradient(130deg, #ffd166, #f3b634);
+  --pyh-btn-danger-bg: linear-gradient(130deg, #f85772, #c7162d);
+  --pyh-btn-ghost-bg: rgba(43, 45, 66, 0.92);
+  --pyh-btn-ghost-text: #8d99ae;
+  --pyh-btn-ghost-border: rgba(255, 255, 255, 0.08);
+
+  --pyh-input-border: rgba(255, 255, 255, 0.06);
+  --pyh-input-bg: rgba(43, 45, 66, 0.9);
+  --pyh-input-text: #edf2f4;
+  --pyh-input-placeholder: #8d99ae;
+
+  --pyh-panel-border: rgba(255, 255, 255, 0.05);
+  --pyh-panel-bg: rgba(43, 45, 66, 0.9);
+  --pyh-divider: rgba(255, 255, 255, 0.1);
+
+  --pyh-busy-border: rgba(56, 189, 248, 0.25);
+  --pyh-busy-accent: #38bdf8;
+
+  --pyh-log-bg: rgba(255, 255, 255, 0.06);
+  --pyh-log-border: rgba(255, 255, 255, 0.12);
+
+  --pyh-inline-border: rgba(255, 255, 255, 0.08);
+  --pyh-inline-bg: rgba(43, 45, 66, 0.7);
+
+  --pyh-code-bg: rgba(255, 255, 255, 0.08);
+
+  --pyh-tone-teal: rgba(94, 234, 212, 0.58);
+  --pyh-tone-amber: rgba(255, 209, 102, 0.58);
+
+  --pyh-warn: rgba(255, 209, 102, 0.62);
+  --pyh-error: rgba(239, 35, 60, 0.65);
+  --pyh-error-text: #ff9aa5;
+}
+
+.pyh-card,
+.demo-card,
+.pyh-hero,
+.hero {
+  box-shadow: 10px 10px 20px #1a1b28, -10px -10px 20px #3c3f5c;
+}
+
+.pyh-btn,
+.btn {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border-radius: 999px;
+  border: none;
+  box-shadow: 6px 6px 12px #1a1b28, -6px -6px 12px #3c3f5c;
+}
+
+.pyh-btn:hover,
+.btn:hover {
+  box-shadow: 4px 4px 10px #1a1b28, -4px -4px 10px #3c3f5c;
+}
+
+.pyh-card h1,
+.pyh-card h2,
+.pyh-card h3,
+.pyh-card h4,
+.demo-card h1,
+.demo-card h2,
+.demo-card h3,
+.demo-card h4,
+.pyh-hero h1,
+.hero h1 {
+  letter-spacing: 0.06em;
+}

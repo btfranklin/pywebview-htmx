@@ -29,11 +29,37 @@ pdm run python app.py
 - `window.pyhtmx.config.swapDelay`: Delay before swapping.
 - `window.pyhtmx.config.settleDelay`: Delay after swapping.
 
+## Theme system
+
+pyHTMX ships reusable component styling and multiple built-in themes.
+
+```python
+from pyhtmx import create_window, list_pyhtmx_themes
+
+print(list_pyhtmx_themes())  # ['aurora', 'cybermind', 'paper']
+create_window("My App", html, js_api=api, theme="paper")
+```
+
+API:
+- `list_pyhtmx_themes()`: available bundled theme names.
+- `get_pyhtmx_theme_css(theme)`: resolved CSS (base + theme overrides).
+- `inject_pyhtmx_theme(html, theme)`: inject or replace theme CSS in raw HTML.
+- `create_window(..., theme="aurora")`: injects selected theme + pyHTMX script.
+
+Set `theme=None` in `create_window()` to disable automatic theme CSS injection.
+
+Bundled component classes include:
+- Layout: `.pyh-shell`, `.pyh-hero`, `.pyh-grid`, `.pyh-card`
+- Controls: `.pyh-btn`, `.pyh-btn-primary`, `.pyh-btn-secondary`, `.pyh-btn-ghost`, `.pyh-btn-danger`
+- Content: `.pyh-result`, `.pyh-note`, `.pyh-code`, `.pyh-chip`, `.pyh-muted`
+- Lists/logs: `.pyh-activity-list`, `.pyh-event-log`
+- Utilities: `.pyh-row`, `.pyh-full-width`, `.pyh-inline-config`
+
 ## Window lifecycle
 
 `create_window()` starts PyWebview by default. Pass `start=False` to create the
 window without starting the global event loop yet:
 
 ```python
-window = create_window("My App", html, js_api=api, start=False)
+window = create_window("My App", html, js_api=api, theme="aurora", start=False)
 ```

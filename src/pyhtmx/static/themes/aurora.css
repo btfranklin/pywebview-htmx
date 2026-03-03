@@ -1,0 +1,74 @@
+:root {
+  --pyh-font-ui: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+  --pyh-font-headline: "Gill Sans", "Trebuchet MS", sans-serif;
+  --pyh-font-mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
+
+  --pyh-space-1: 8px;
+  --pyh-space-2: 12px;
+  --pyh-space-3: 16px;
+  --pyh-space-4: 24px;
+  --pyh-space-5: 32px;
+
+  --pyh-radius: 16px;
+  --pyh-radius-sm: 10px;
+  --pyh-blur: 12px;
+  --pyh-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+
+  --pyh-text: #f4f8fb;
+  --pyh-text-muted: #b8c7d4;
+
+  --pyh-background:
+    radial-gradient(
+      1200px 600px at 90% -10%,
+      rgba(85, 225, 184, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      900px 420px at 0% 110%,
+      rgba(247, 186, 84, 0.18),
+      transparent 70%
+    ),
+    linear-gradient(160deg, #071423, #0d2235 45%, #102c40);
+
+  --pyh-surface: rgba(255, 255, 255, 0.1);
+  --pyh-border: rgba(255, 255, 255, 0.22);
+
+  --pyh-chip-bg: rgba(255, 255, 255, 0.14);
+  --pyh-chip-border: rgba(255, 255, 255, 0.2);
+
+  --pyh-btn-text: #0a1d2d;
+  --pyh-btn-bg: #dce8f1;
+  --pyh-btn-primary-bg: linear-gradient(130deg, #79ffd3, #55e1b8);
+  --pyh-btn-secondary-bg: linear-gradient(130deg, #ffd899, #f7ba54);
+  --pyh-btn-danger-bg: linear-gradient(130deg, #ffb8b8, #ef6f6f);
+  --pyh-btn-ghost-bg: rgba(255, 255, 255, 0.12);
+  --pyh-btn-ghost-text: #f4f8fb;
+  --pyh-btn-ghost-border: rgba(255, 255, 255, 0.28);
+
+  --pyh-input-border: rgba(255, 255, 255, 0.24);
+  --pyh-input-bg: rgba(255, 255, 255, 0.1);
+  --pyh-input-text: #f4f8fb;
+  --pyh-input-placeholder: #d2deea;
+
+  --pyh-panel-border: rgba(255, 255, 255, 0.22);
+  --pyh-panel-bg: rgba(7, 20, 35, 0.35);
+  --pyh-divider: rgba(255, 255, 255, 0.2);
+
+  --pyh-busy-border: rgba(255, 255, 255, 0.35);
+  --pyh-busy-accent: #55e1b8;
+
+  --pyh-log-bg: rgba(255, 255, 255, 0.08);
+  --pyh-log-border: rgba(255, 255, 255, 0.14);
+
+  --pyh-inline-border: rgba(255, 255, 255, 0.25);
+  --pyh-inline-bg: rgba(255, 255, 255, 0.09);
+
+  --pyh-code-bg: rgba(255, 255, 255, 0.12);
+
+  --pyh-tone-teal: rgba(85, 225, 184, 0.5);
+  --pyh-tone-amber: rgba(247, 186, 84, 0.5);
+
+  --pyh-warn: rgba(247, 186, 84, 0.55);
+  --pyh-error: rgba(239, 111, 111, 0.65);
+  --pyh-error-text: #ffe2e2;
+}

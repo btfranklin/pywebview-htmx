@@ -24,7 +24,7 @@ lint = "ruff check ."
 
 [tool.pdm.build]
 package-dir = "src"
-includes = ["pyhtmx"]
+includes = ["src/pyhtmx"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

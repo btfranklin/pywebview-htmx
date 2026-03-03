@@ -9,7 +9,12 @@ from html import escape as html_escape
 from textwrap import dedent
 from threading import Lock
 
-from pyhtmx import create_window
+from pyhtmx import (
+    DEFAULT_THEME,
+    create_window,
+    get_pyhtmx_theme_css,
+    list_pyhtmx_themes,
+)
 
 
 class API:
@@ -18,6 +23,8 @@ class API:
         self._activity_id = 0
         self._panel_version = 0
         self._morph_count = 0
+        self._available_themes = list_pyhtmx_themes()
+        self._current_theme = DEFAULT_THEME
 
     @staticmethod
     def _stamp() -> str:
@@ -26,6 +33,62 @@ class API:
     @staticmethod
     def _json_attr(payload: dict[str, object]) -> str:
         return html_escape(json.dumps(payload), quote=True)
+
+    def _normalize_theme(self, requested: object) -> str:
+        candidate = str(requested).strip().lower()
+        if candidate in self._available_themes:
+            return candidate
+        return self._current_theme
+
+    def _theme_picker_markup(self, active_theme: str) -> str:
+        buttons_html = []
+        for theme_name in self._available_themes:
+            theme_payload = self._json_attr({"theme": theme_name})
+            button_class = "btn btn-primary" if theme_name == active_theme else "btn btn-ghost"
+            buttons_html.append(
+                dedent(
+                    f"""
+                    <button
+                      class="{button_class}"
+                      py-call="switch_theme"
+                      py-target="#theme-picker"
+                      py-swap="outerHTML"
+                      data-py-params="{theme_payload}">
+                      {theme_name.title()}
+                    </button>
+                    """,
+                ).strip(),
+            )
+
+        css = get_pyhtmx_theme_css(active_theme)
+        buttons_markup = "\n".join(buttons_html)
+        return dedent(
+            f"""
+            <section id="theme-picker" class="demo-card">
+              <style data-pyhtmx-theme="{active_theme}">{css}</style>
+              <h2>Theme Picker (Python-backed)</h2>
+              <p class="muted">
+                These buttons call Python and swap this entire section. The returned
+                HTML includes a new <code>&lt;style data-pyhtmx-theme=...&gt;</code>
+                block, so the live UI theme changes immediately.
+              </p>
+              <div class="button-row">
+                {buttons_markup}
+              </div>
+              <p class="muted">
+                Active theme from Python response:
+                <strong>{active_theme}</strong>
+              </p>
+            </section>
+            """,
+        ).strip()
+
+    def switch_theme(self, params: dict[str, object]) -> str:
+        requested = params.get("theme", self._current_theme)
+        with self._lock:
+            self._current_theme = self._normalize_theme(requested)
+            active_theme = self._current_theme
+        return self._theme_picker_markup(active_theme)
 
     def fetch_profile(self, params: dict[str, object]) -> str:
         user_id = html_escape(str(params.get("user_id", "unknown")))
@@ -218,6 +281,8 @@ class API:
 
 
 api = API()
+DEMO_THEME = DEFAULT_THEME
+assert DEMO_THEME in list_pyhtmx_themes()
 
 html_content = """
 <!DOCTYPE html>
@@ -226,357 +291,6 @@ html_content = """
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>pyHTMX Feature Showcase</title>
-  <style>
-    :root {
-      --bg-top: #071423;
-      --bg-mid: #0d2235;
-      --bg-bottom: #102c40;
-      --surface: rgba(255, 255, 255, 0.1);
-      --surface-strong: rgba(255, 255, 255, 0.16);
-      --border: rgba(255, 255, 255, 0.22);
-      --text: #f4f8fb;
-      --text-muted: #b8c7d4;
-      --accent: #55e1b8;
-      --accent-2: #f7ba54;
-      --danger: #ef6f6f;
-      --radius: 16px;
-      --radius-sm: 10px;
-      --shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
-      --space-1: 8px;
-      --space-2: 12px;
-      --space-3: 16px;
-      --space-4: 24px;
-      --space-5: 32px;
-      --font-ui: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
-      --font-headline: "Gill Sans", "Trebuchet MS", sans-serif;
-      --font-mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      color: var(--text);
-      font-family: var(--font-ui);
-      background:
-        radial-gradient(1200px 600px at 90% -10%, rgba(85, 225, 184, 0.18), transparent 70%),
-        radial-gradient(900px 420px at 0% 110%, rgba(247, 186, 84, 0.18), transparent 70%),
-        linear-gradient(160deg, var(--bg-top), var(--bg-mid) 45%, var(--bg-bottom));
-      min-height: 100vh;
-    }
-
-    .app-shell {
-      width: min(1200px, 94vw);
-      margin: var(--space-5) auto;
-      display: grid;
-      gap: var(--space-4);
-    }
-
-    .hero,
-    .demo-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(12px);
-    }
-
-    .hero {
-      padding: var(--space-5);
-      display: grid;
-      gap: var(--space-3);
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-family: var(--font-headline);
-      font-size: clamp(1.8rem, 4vw, 2.8rem);
-      letter-spacing: 0.02em;
-    }
-
-    .hero p {
-      margin: 0;
-      color: var(--text-muted);
-      max-width: 78ch;
-      line-height: 1.5;
-    }
-
-    .badge-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
-
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      font-size: 0.82rem;
-      line-height: 1;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: var(--space-3);
-    }
-
-    .demo-card {
-      padding: var(--space-4);
-      display: grid;
-      gap: var(--space-3);
-      align-content: start;
-    }
-
-    .tone-teal {
-      border-color: rgba(85, 225, 184, 0.5);
-    }
-
-    .tone-amber {
-      border-color: rgba(247, 186, 84, 0.5);
-    }
-
-    h2,
-    h3,
-    h4 {
-      margin: 0;
-      font-family: var(--font-headline);
-      letter-spacing: 0.01em;
-    }
-
-    p {
-      margin: 0;
-      line-height: 1.45;
-    }
-
-    .muted {
-      color: var(--text-muted);
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-    }
-
-    .btn {
-      border: 1px solid transparent;
-      border-radius: var(--radius-sm);
-      padding: 10px 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 120ms ease, filter 120ms ease;
-      color: #0a1d2d;
-      background: #dce8f1;
-      min-height: 40px;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.06);
-    }
-
-    .btn-primary {
-      background: linear-gradient(130deg, #79ffd3, #55e1b8);
-    }
-
-    .btn-secondary {
-      background: linear-gradient(130deg, #ffd899, #f7ba54);
-    }
-
-    .btn-ghost {
-      background: rgba(255, 255, 255, 0.12);
-      color: var(--text);
-      border-color: rgba(255, 255, 255, 0.28);
-    }
-
-    .btn-danger {
-      background: linear-gradient(130deg, #ffb8b8, #ef6f6f);
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .field-row {
-      display: grid;
-      gap: var(--space-2);
-    }
-
-    .field-row input,
-    .field-row select {
-      width: 100%;
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.24);
-      background: rgba(255, 255, 255, 0.1);
-      color: var(--text);
-      padding: 10px 12px;
-      min-height: 38px;
-      font: inherit;
-    }
-
-    .field-row input::placeholder {
-      color: #d2deea;
-      opacity: 0.8;
-    }
-
-    .result-card,
-    .result-note,
-    .code-block,
-    .event-log,
-    .activity-list,
-    .hover-target {
-      border-radius: var(--radius-sm);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      background: rgba(7, 20, 35, 0.35);
-      padding: 12px;
-    }
-
-    .result-card {
-      display: grid;
-      gap: 6px;
-    }
-
-    .code-block {
-      margin: 0;
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      line-height: 1.35;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .activity-list {
-      margin: 0;
-      padding-left: 0;
-      list-style: none;
-      display: grid;
-      gap: 8px;
-    }
-
-    .activity-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-      padding-bottom: 6px;
-    }
-
-    .hover-target {
-      min-height: 56px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      border-style: dashed;
-      cursor: default;
-    }
-
-    .wait-target {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      color: var(--text-muted);
-      font-size: 0.88rem;
-    }
-
-    .busy-pill {
-      width: 14px;
-      height: 14px;
-      border-radius: 999px;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: var(--accent);
-      animation: spin 800ms linear infinite;
-      visibility: hidden;
-    }
-
-    .wait-target.py-waiting .busy-pill {
-      visibility: visible;
-    }
-
-    .py-waiting {
-      opacity: 0.55;
-      filter: saturate(0.7);
-      pointer-events: none;
-    }
-
-    .event-log {
-      margin: 0;
-      padding-left: 0;
-      list-style: none;
-      max-height: 260px;
-      overflow: auto;
-      display: grid;
-      gap: 6px;
-      font-size: 0.85rem;
-      font-family: var(--font-mono);
-    }
-
-    .event-log li {
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-    }
-
-    .event-log li.warn {
-      border-color: rgba(247, 186, 84, 0.55);
-    }
-
-    .event-log li.error {
-      border-color: rgba(239, 111, 111, 0.65);
-      color: #ffe2e2;
-    }
-
-    .inline-config {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .inline-config label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      background: rgba(255, 255, 255, 0.09);
-      font-size: 0.88rem;
-    }
-
-    code {
-      font-family: var(--font-mono);
-      font-size: 0.9em;
-      background: rgba(255, 255, 255, 0.12);
-      border-radius: 6px;
-      padding: 2px 5px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    @media (max-width: 720px) {
-      .app-shell {
-        margin: var(--space-4) auto;
-      }
-
-      .hero,
-      .demo-card {
-        padding: var(--space-3);
-      }
-    }
-  </style>
 </head>
 <body>
   <main class="app-shell">
@@ -589,11 +303,15 @@ html_content = """
         concurrency policy, lifecycle events, and re-processing swapped fragments.
       </p>
       <div class="badge-row">
+        <span class="chip">Live theme switch uses a Python API call</span>
+        <span class="chip">Theme CSS is shipped in the pyHTMX package</span>
         <span class="chip">Styling system: CSS tokens</span>
         <span class="chip">Reusable components: card, button, field</span>
         <span class="chip">Utilities: grid, spacing, full-width</span>
       </div>
     </header>
+
+    __THEME_PICKER__
 
     <section class="demo-card">
       <h2>Runtime Controls + Event Feed</h2>
@@ -896,5 +614,15 @@ html_content = """
 </html>
 """
 
+html_content = html_content.replace(
+    "__THEME_PICKER__",
+    api.switch_theme({"theme": DEMO_THEME}),
+)
+
 if __name__ == "__main__":
-    create_window("pyHTMX Feature Showcase", html_content, js_api=api)
+    create_window(
+        "pyHTMX Feature Showcase",
+        html_content,
+        js_api=api,
+        theme=None,
+    )

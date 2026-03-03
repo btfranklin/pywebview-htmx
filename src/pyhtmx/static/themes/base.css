@@ -1,0 +1,386 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  color: var(--pyh-text);
+  font-family: var(--pyh-font-ui);
+  background: var(--pyh-background);
+}
+
+.pyh-shell,
+.app-shell {
+  width: min(1200px, 94vw);
+  margin: var(--pyh-space-5) auto;
+  display: grid;
+  gap: var(--pyh-space-4);
+}
+
+.pyh-hero,
+.hero,
+.pyh-card,
+.demo-card {
+  background: var(--pyh-surface);
+  border: 1px solid var(--pyh-border);
+  border-radius: var(--pyh-radius);
+  box-shadow: var(--pyh-shadow);
+  backdrop-filter: blur(var(--pyh-blur));
+}
+
+.pyh-hero,
+.hero {
+  padding: var(--pyh-space-5);
+  display: grid;
+  gap: var(--pyh-space-3);
+}
+
+.pyh-hero h1,
+.hero h1 {
+  margin: 0;
+  font-family: var(--pyh-font-headline);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  letter-spacing: 0.02em;
+}
+
+.pyh-hero p,
+.hero p {
+  margin: 0;
+  color: var(--pyh-text-muted);
+  max-width: 78ch;
+  line-height: 1.5;
+}
+
+.pyh-badge-row,
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pyh-space-2);
+}
+
+.pyh-grid,
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--pyh-space-3);
+}
+
+.pyh-card,
+.demo-card {
+  padding: var(--pyh-space-4);
+  display: grid;
+  gap: var(--pyh-space-3);
+  align-content: start;
+}
+
+.pyh-tone-teal,
+.tone-teal {
+  border-color: var(--pyh-tone-teal);
+}
+
+.pyh-tone-amber,
+.tone-amber {
+  border-color: var(--pyh-tone-amber);
+}
+
+.pyh-card h2,
+.pyh-card h3,
+.pyh-card h4,
+.pyh-hero h2,
+.pyh-hero h3,
+.pyh-hero h4,
+.demo-card h2,
+.demo-card h3,
+.demo-card h4,
+.hero h2,
+.hero h3,
+.hero h4 {
+  margin: 0;
+  font-family: var(--pyh-font-headline);
+  letter-spacing: 0.01em;
+}
+
+.pyh-card p,
+.pyh-hero p,
+.demo-card p,
+.hero p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pyh-muted,
+.muted {
+  color: var(--pyh-text-muted);
+}
+
+.pyh-chip,
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--pyh-chip-bg);
+  border: 1px solid var(--pyh-chip-border);
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.pyh-row,
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pyh-space-2);
+}
+
+.pyh-btn,
+.btn {
+  border: 1px solid transparent;
+  border-radius: var(--pyh-radius-sm);
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 120ms ease, filter 120ms ease;
+  color: var(--pyh-btn-text);
+  background: var(--pyh-btn-bg);
+  min-height: 40px;
+}
+
+.pyh-btn:hover,
+.btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.pyh-btn-primary,
+.btn-primary {
+  background: var(--pyh-btn-primary-bg);
+}
+
+.pyh-btn-secondary,
+.btn-secondary {
+  background: var(--pyh-btn-secondary-bg);
+}
+
+.pyh-btn-ghost,
+.btn-ghost {
+  background: var(--pyh-btn-ghost-bg);
+  color: var(--pyh-btn-ghost-text);
+  border-color: var(--pyh-btn-ghost-border);
+}
+
+.pyh-btn-danger,
+.btn-danger {
+  background: var(--pyh-btn-danger-bg);
+}
+
+.pyh-full-width,
+.full-width {
+  width: 100%;
+}
+
+.pyh-fields,
+.field-row {
+  display: grid;
+  gap: var(--pyh-space-2);
+}
+
+.pyh-fields input,
+.pyh-fields select,
+.field-row input,
+.field-row select {
+  width: 100%;
+  border-radius: var(--pyh-radius-sm);
+  border: 1px solid var(--pyh-input-border);
+  background: var(--pyh-input-bg);
+  color: var(--pyh-input-text);
+  padding: 10px 12px;
+  min-height: 38px;
+  font: inherit;
+}
+
+.pyh-fields input::placeholder,
+.field-row input::placeholder {
+  color: var(--pyh-input-placeholder);
+  opacity: 0.8;
+}
+
+.pyh-result,
+.result-card,
+.pyh-note,
+.result-note,
+.pyh-code,
+.code-block,
+.pyh-event-log,
+.event-log,
+.pyh-activity-list,
+.activity-list,
+.pyh-hover-target,
+.hover-target {
+  border-radius: var(--pyh-radius-sm);
+  border: 1px solid var(--pyh-panel-border);
+  background: var(--pyh-panel-bg);
+  padding: 12px;
+}
+
+.pyh-result,
+.result-card {
+  display: grid;
+  gap: 6px;
+}
+
+.pyh-code,
+.code-block {
+  margin: 0;
+  font-family: var(--pyh-font-mono);
+  font-size: 0.82rem;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.pyh-activity-list,
+.activity-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.pyh-activity-row,
+.activity-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  border-bottom: 1px dashed var(--pyh-divider);
+  padding-bottom: 6px;
+}
+
+.pyh-hover-target,
+.hover-target {
+  min-height: 56px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  border-style: dashed;
+  cursor: default;
+}
+
+.pyh-wait-target,
+.wait-target {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--pyh-text-muted);
+  font-size: 0.88rem;
+}
+
+.pyh-busy-pill,
+.busy-pill {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--pyh-busy-border);
+  border-top-color: var(--pyh-busy-accent);
+  animation: pyh-spin 800ms linear infinite;
+  visibility: hidden;
+}
+
+.pyh-wait-target.py-waiting .pyh-busy-pill,
+.wait-target.py-waiting .busy-pill {
+  visibility: visible;
+}
+
+.py-waiting {
+  opacity: 0.55;
+  filter: saturate(0.7);
+  pointer-events: none;
+}
+
+.pyh-event-log,
+.event-log {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow: auto;
+  display: grid;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-family: var(--pyh-font-mono);
+}
+
+.pyh-event-log li,
+.event-log li {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--pyh-log-bg);
+  border: 1px solid var(--pyh-log-border);
+}
+
+.pyh-event-log li.pyh-warn,
+.event-log li.warn {
+  border-color: var(--pyh-warn);
+}
+
+.pyh-event-log li.pyh-error,
+.event-log li.error {
+  border-color: var(--pyh-error);
+  color: var(--pyh-error-text);
+}
+
+.pyh-inline-config,
+.inline-config {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.pyh-inline-config label,
+.inline-config label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--pyh-inline-border);
+  background: var(--pyh-inline-bg);
+  font-size: 0.88rem;
+}
+
+.pyh-shell code,
+.app-shell code {
+  font-family: var(--pyh-font-mono);
+  font-size: 0.9em;
+  background: var(--pyh-code-bg);
+  border-radius: 6px;
+  padding: 2px 5px;
+}
+
+@keyframes pyh-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .pyh-shell,
+  .app-shell {
+    margin: var(--pyh-space-4) auto;
+  }
+
+  .pyh-hero,
+  .hero,
+  .pyh-card,
+  .demo-card {
+    padding: var(--pyh-space-3);
+  }
+}

@@ -1,0 +1,64 @@
+:root {
+  --pyh-font-ui: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
+  --pyh-font-headline: "Gill Sans", "Trebuchet MS", sans-serif;
+  --pyh-font-mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
+
+  --pyh-space-1: 8px;
+  --pyh-space-2: 12px;
+  --pyh-space-3: 16px;
+  --pyh-space-4: 24px;
+  --pyh-space-5: 32px;
+
+  --pyh-radius: 16px;
+  --pyh-radius-sm: 10px;
+  --pyh-blur: 0px;
+  --pyh-shadow: 0 14px 28px rgba(26, 30, 36, 0.12);
+
+  --pyh-text: #1b2837;
+  --pyh-text-muted: #536476;
+
+  --pyh-background:
+    linear-gradient(180deg, #f5f8fb, #edf2f7 40%, #f0efe9);
+
+  --pyh-surface: rgba(255, 255, 255, 0.92);
+  --pyh-border: rgba(27, 40, 55, 0.13);
+
+  --pyh-chip-bg: rgba(66, 124, 199, 0.14);
+  --pyh-chip-border: rgba(66, 124, 199, 0.3);
+
+  --pyh-btn-text: #122133;
+  --pyh-btn-bg: #e4ebf2;
+  --pyh-btn-primary-bg: linear-gradient(130deg, #9cc4ff, #5f8fd6);
+  --pyh-btn-secondary-bg: linear-gradient(130deg, #ffd7a3, #f2b563);
+  --pyh-btn-danger-bg: linear-gradient(130deg, #ffc1c1, #ed8484);
+  --pyh-btn-ghost-bg: rgba(27, 40, 55, 0.08);
+  --pyh-btn-ghost-text: #1b2837;
+  --pyh-btn-ghost-border: rgba(27, 40, 55, 0.2);
+
+  --pyh-input-border: rgba(27, 40, 55, 0.23);
+  --pyh-input-bg: rgba(255, 255, 255, 0.95);
+  --pyh-input-text: #1b2837;
+  --pyh-input-placeholder: #66778a;
+
+  --pyh-panel-border: rgba(27, 40, 55, 0.16);
+  --pyh-panel-bg: rgba(255, 255, 255, 0.84);
+  --pyh-divider: rgba(27, 40, 55, 0.16);
+
+  --pyh-busy-border: rgba(27, 40, 55, 0.26);
+  --pyh-busy-accent: #5f8fd6;
+
+  --pyh-log-bg: rgba(27, 40, 55, 0.06);
+  --pyh-log-border: rgba(27, 40, 55, 0.14);
+
+  --pyh-inline-border: rgba(27, 40, 55, 0.23);
+  --pyh-inline-bg: rgba(255, 255, 255, 0.82);
+
+  --pyh-code-bg: rgba(27, 40, 55, 0.08);
+
+  --pyh-tone-teal: rgba(95, 143, 214, 0.58);
+  --pyh-tone-amber: rgba(242, 181, 99, 0.58);
+
+  --pyh-warn: rgba(242, 181, 99, 0.62);
+  --pyh-error: rgba(237, 132, 132, 0.68);
+  --pyh-error-text: #6a1d1d;
+}
