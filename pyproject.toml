@@ -1,0 +1,40 @@
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "pyhtmx"
+version = "0.1.0"
+description = "HTMX-style declarative UI bindings for PyWebview apps"
+authors = [
+    {name = "B.T. Franklin", email = "brandon.franklin@gmail.com"},
+]
+dependencies = ["pywebview>=6.1"]
+requires-python = ">=3.14"
+readme = "README.md"
+license = {text = "MIT"}
+
+
+[tool.pdm]
+distribution = true
+
+[tool.pdm.scripts]
+test = "pytest"
+lint = "ruff check ."
+
+[tool.pdm.build]
+package-dir = "src"
+includes = ["pyhtmx"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.15.4",
+]
