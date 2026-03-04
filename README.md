@@ -1,5 +1,7 @@
 # pywebview-htmx
 
+![pywebview-htmx banner](https://raw.githubusercontent.com/btfranklin/pywebview-htmx/main/.github/social%20preview/pywebview_htmx_social_preview.jpg "pywebview-htmx")
+
 `pywebview-htmx` (import as `pywebview_htmx`) brings HTMX-style declarative interactions to PyWebview apps.
 
 You write mostly normal HTML, annotate interactive elements with `py-*` attributes,
