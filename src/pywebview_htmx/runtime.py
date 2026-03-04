@@ -6,18 +6,18 @@ from typing import Any
 
 import webview
 
-_PYHTMX_SCRIPT_TAG_RE = re.compile(r"<script[^>]*\bdata-pyhtmx\b", re.IGNORECASE)
-_PYHTMX_THEME_TAG_RE = re.compile(
-    r"<style[^>]*\bdata-pyhtmx-theme\s*=\s*[\"'](?P<name>[^\"']+)[\"'][^>]*>.*?</style>",
+_SCRIPT_TAG_RE = re.compile(r"<script[^>]*\bdata-pywebview-htmx\b", re.IGNORECASE)
+_THEME_TAG_RE = re.compile(
+    r"<style[^>]*\bdata-pywebview-theme\s*=\s*[\"'](?P<name>[^\"']+)[\"'][^>]*>.*?</style>",
     re.IGNORECASE | re.DOTALL,
 )
 _THEME_BASE_NAME = "base"
 DEFAULT_THEME = "aurora"
 
 
-def list_pyhtmx_themes() -> list[str]:
+def list_themes() -> list[str]:
     """Return all bundled selectable theme names."""
-    themes_dir = files("pyhtmx").joinpath("static/themes")
+    themes_dir = files("pywebview_htmx").joinpath("static/themes")
     names = sorted(
         path.name[:-4]
         for path in themes_dir.iterdir()
@@ -26,17 +26,17 @@ def list_pyhtmx_themes() -> list[str]:
     return [name for name in names if name != _THEME_BASE_NAME]
 
 
-def get_pyhtmx_theme_css(theme: str = DEFAULT_THEME) -> str:
+def get_theme_css(theme: str = DEFAULT_THEME) -> str:
     """Return bundled CSS for ``theme``, composed of base + theme overrides."""
     normalized_theme = theme.strip().lower()
-    available = list_pyhtmx_themes()
+    available = list_themes()
     if normalized_theme not in available:
         options = ", ".join(available)
         raise ValueError(
-            f"Unknown pyhtmx theme '{theme}'. Available themes: {options}",
+            f"Unknown theme '{theme}'. Available themes: {options}",
         )
 
-    themes_dir = files("pyhtmx").joinpath("static/themes")
+    themes_dir = files("pywebview_htmx").joinpath("static/themes")
     base_css = themes_dir.joinpath(f"{_THEME_BASE_NAME}.css").read_text(
         encoding="utf-8",
     )
@@ -46,18 +46,20 @@ def get_pyhtmx_theme_css(theme: str = DEFAULT_THEME) -> str:
     return f"{base_css}\n\n{theme_css}"
 
 
-def get_pyhtmx_script() -> str:
-    """Read the bundled pyHTMX JavaScript from package resources."""
-    return files("pyhtmx").joinpath("static/pyhtmx.js").read_text(encoding="utf-8")
+def get_runtime_script() -> str:
+    """Read the bundled JavaScript runtime from package resources."""
+    return files("pywebview_htmx").joinpath("static/runtime.js").read_text(
+        encoding="utf-8",
+    )
 
 
-def inject_pyhtmx(html: str) -> str:
-    """Inject the pyHTMX script into an HTML string before ``</body>`` when present."""
-    if _PYHTMX_SCRIPT_TAG_RE.search(html):
+def inject_runtime(html: str) -> str:
+    """Inject the runtime script into an HTML string before ``</body>`` when present."""
+    if _SCRIPT_TAG_RE.search(html):
         return html
 
-    script_content = get_pyhtmx_script()
-    injection = f'<script data-pyhtmx="true">{script_content}</script>'
+    script_content = get_runtime_script()
+    injection = f'<script data-pywebview-htmx="true">{script_content}</script>'
 
     lower_html = html.lower()
     body_close_idx = lower_html.rfind("</body>")
@@ -67,13 +69,13 @@ def inject_pyhtmx(html: str) -> str:
     return f"{html[:body_close_idx]}{injection}{html[body_close_idx:]}"
 
 
-def inject_pyhtmx_theme(html: str, theme: str = DEFAULT_THEME) -> str:
-    """Inject or replace the bundled pyHTMX theme CSS in HTML."""
+def inject_theme(html: str, theme: str = DEFAULT_THEME) -> str:
+    """Inject or replace the bundled theme CSS in HTML."""
     normalized_theme = theme.strip().lower()
-    css = get_pyhtmx_theme_css(normalized_theme)
-    injection = f'<style data-pyhtmx-theme="{normalized_theme}">{css}</style>'
+    css = get_theme_css(normalized_theme)
+    injection = f'<style data-pywebview-theme="{normalized_theme}">{css}</style>'
 
-    match = _PYHTMX_THEME_TAG_RE.search(html)
+    match = _THEME_TAG_RE.search(html)
     if match:
         current_theme = match.group("name").strip().lower()
         if current_theme == normalized_theme:
@@ -102,7 +104,7 @@ def create_window(
     **kwargs: Any,
 ) -> webview.Window:
     """
-    Create and start a PyWebview window with pyHTMX auto-injected into the page.
+    Create and start a PyWebview window with runtime assets auto-injected.
 
     Args:
         title: Window title.
@@ -112,13 +114,13 @@ def create_window(
         start: Whether to call ``webview.start()`` after creating the window.
         **kwargs: Additional keyword args forwarded to ``webview.create_window``.
     """
-    html_with_pyhtmx = html
+    html_with_runtime = html
     if theme is not None:
-        html_with_pyhtmx = inject_pyhtmx_theme(html_with_pyhtmx, theme)
-    html_with_pyhtmx = inject_pyhtmx(html_with_pyhtmx)
+        html_with_runtime = inject_theme(html_with_runtime, theme)
+    html_with_runtime = inject_runtime(html_with_runtime)
     window = webview.create_window(
         title,
-        html=html_with_pyhtmx,
+        html=html_with_runtime,
         js_api=js_api,
         **kwargs,
     )

@@ -4,12 +4,12 @@ import re
 
 import pytest
 
-from pyhtmx import get_pyhtmx_script
+from pywebview_htmx import get_runtime_script
 
 
 @pytest.fixture(scope="session")
 def js_source() -> str:
-    return get_pyhtmx_script()
+    return get_runtime_script()
 
 
 @pytest.fixture(scope="session")

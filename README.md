@@ -1,9 +1,9 @@
-# pyhtmx
+# pywebview-htmx
 
-`pyhtmx` brings HTMX-style declarative interactions to PyWebview apps.
+`pywebview-htmx` (import as `pywebview_htmx`) brings HTMX-style declarative interactions to PyWebview apps.
 
 You write mostly normal HTML, annotate interactive elements with `py-*` attributes,
-and `pyhtmx` wires those elements to Python methods exposed through
+and `pywebview-htmx` wires those elements to Python methods exposed through
 `window.pywebview.api`.
 
 ## What You Get
@@ -18,7 +18,7 @@ and `pyhtmx` wires those elements to Python methods exposed through
 
 ## Mental Model
 
-`pyhtmx` is a tiny runtime that does four core jobs:
+`pywebview-htmx` is a tiny runtime that does four core jobs:
 
 1. Find elements with `py-call`.
 2. Bind an event listener (default: `click`, override with `py-trigger`).
@@ -39,13 +39,13 @@ pdm install
 ### In another PDM project
 
 ```bash
-pdm add pyhtmx
+pdm add pywebview-htmx
 ```
 
 ## Quick Start
 
 ```python
-from pyhtmx import create_window
+from pywebview_htmx import create_window
 
 
 class API:
@@ -61,7 +61,7 @@ html = """
     <button
       py-call="greeting"
       py-target="#result"
-      data-py-params='{"name": "pyhtmx"}'>
+      data-py-params='{"name": "pywebview-htmx"}'>
       Say hello
     </button>
     <div id="result"></div>
@@ -72,7 +72,7 @@ html = """
 create_window("Quickstart", html, js_api=API())
 ```
 
-You do **not** manually include `pyhtmx.js` when using `create_window()`;
+You do **not** manually include `runtime.js` when using `create_window()`;
 it is injected automatically.
 
 ## API Reference (Python)
@@ -80,7 +80,7 @@ it is injected automatically.
 ### `create_window(title, html, js_api=None, theme="aurora", start=True, **kwargs)`
 
 Creates a PyWebview window with injected theme CSS (optional) and injected
-`pyhtmx` runtime script.
+`pywebview-htmx` runtime script.
 
 - `title`: window title
 - `html`: HTML document string
@@ -93,19 +93,19 @@ When to set `start=False`:
 - You need to create multiple windows before starting
 - You want to manage PyWebview startup/lifecycle yourself
 
-### `get_pyhtmx_script()`
+### `get_runtime_script()`
 
 Returns the bundled JavaScript runtime as a string.
 
-### `inject_pyhtmx(html)`
+### `inject_runtime(html)`
 
 Injects the runtime script tag into an HTML string (idempotent).
 
 ### Theme helpers
 
-- `list_pyhtmx_themes()` -> sorted list of available themes
-- `get_pyhtmx_theme_css(theme)` -> base CSS + selected theme CSS
-- `inject_pyhtmx_theme(html, theme)` -> inject or replace theme `<style>` block
+- `list_themes()` -> sorted list of available themes
+- `get_theme_css(theme)` -> base CSS + selected theme CSS
+- `inject_theme(html, theme)` -> inject or replace theme `<style>` block
 
 ### Constants
 
@@ -163,7 +163,7 @@ If missing/empty/unresolvable, the triggering element is used.
 
 ## Runtime Config (JavaScript)
 
-`window.pyhtmx.config` includes:
+`window.pywebviewHtmx.config` includes:
 
 - `defaultSwapStyle` (default: `"innerHTML"`)
 - `swapDelay` (ms, default: `0`)
@@ -173,14 +173,14 @@ If missing/empty/unresolvable, the triggering element is used.
 Example:
 
 ```js
-window.pyhtmx.config.requestPolicy = "drop";
-window.pyhtmx.config.swapDelay = 150;
-window.pyhtmx.config.settleDelay = 50;
+window.pywebviewHtmx.config.requestPolicy = "drop";
+window.pywebviewHtmx.config.swapDelay = 150;
+window.pywebviewHtmx.config.settleDelay = 50;
 ```
 
 ## Lifecycle Events
 
-`pyhtmx` dispatches custom events you can observe for telemetry, debugging, and UX:
+`pywebview-htmx` dispatches custom events you can observe for telemetry, debugging, and UX:
 
 - `py:trigger`
 - `py:beforeSwap`
@@ -192,13 +192,13 @@ Example:
 
 ```js
 document.body.addEventListener("py:error", (event) => {
-  console.error("pyhtmx error", event.detail.error);
+  console.error("pywebview-htmx error", event.detail.error);
 });
 ```
 
 ## Concurrency Behavior
 
-Per trigger element, `pyhtmx` tracks request state.
+Per trigger element, `pywebview-htmx` tracks request state.
 
 ### `latest-wins` (default)
 
@@ -212,18 +212,18 @@ If a request is already in flight for that element, new triggers are ignored and
 
 ## Dynamic Content Re-processing
 
-After a swap, `pyhtmx` automatically scans swapped content for new `py-call`
+After a swap, `pywebview-htmx` automatically scans swapped content for new `py-call`
 elements and binds them. This enables chained interactions in returned fragments
 without manual re-init code.
 
 ## Theme System
 
-`pyhtmx` ships a reusable component styling system plus multiple themes.
+`pywebview-htmx` ships a reusable component styling system plus multiple themes.
 
 ```python
-from pyhtmx import create_window, list_pyhtmx_themes
+from pywebview_htmx import create_window, list_themes
 
-print(list_pyhtmx_themes())
+print(list_themes())
 # ['aurora', 'cybermind', 'paper']
 
 create_window("My App", html, js_api=api, theme="cybermind")
@@ -247,8 +247,8 @@ Recommended canonical classes:
 ### Shipping Your Own Theme
 
 Use the same token pattern as bundled themes (`--pyh-*` variables) and inject your
-custom CSS before runtime initialization. If you want pyHTMX-style replacement
-behavior, add your own `<style data-pyhtmx-theme="my-theme">...</style>` block.
+custom CSS before runtime initialization. If you want PyWebview HTMX-style replacement
+behavior, add your own `<style data-pywebview-theme="my-theme">...</style>` block.
 
 ## Practical Patterns
 
@@ -271,7 +271,7 @@ behavior, add your own `<style data-pyhtmx-theme="my-theme">...</style>` block.
 ### Pattern 4: Theme switch from Python
 
 - Expose a `switch_theme` Python method
-- Return HTML containing `<style data-pyhtmx-theme="...">...</style>`
+- Return HTML containing `<style data-pywebview-theme="...">...</style>`
 - Swap a wrapper section with `py-swap="outerHTML"`
 
 ## Security Notes
@@ -293,10 +293,10 @@ Check:
 ### "New buttons in swapped HTML do not work"
 
 This should work by default via post-swap processing. If you perform manual DOM
-changes outside of pyhtmx swaps, call:
+changes outside of pywebview-htmx swaps, call:
 
 ```js
-window.pyhtmx.process(document.body);
+window.pywebviewHtmx.process(document.body);
 ```
 
 ### "Loading state looks wrong"
@@ -322,4 +322,4 @@ The demo includes:
 
 ## License
 
-MIT (see [LICENSE](/Users/bt/Development/private repos/pyhtmx/LICENSE)).
+MIT (see [LICENSE](LICENSE)).

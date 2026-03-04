@@ -9,11 +9,11 @@ from html import escape as html_escape
 from textwrap import dedent
 from threading import Lock
 
-from pyhtmx import (
+from pywebview_htmx import (
     DEFAULT_THEME,
     create_window,
-    get_pyhtmx_theme_css,
-    list_pyhtmx_themes,
+    get_theme_css,
+    list_themes,
 )
 
 
@@ -23,7 +23,7 @@ class API:
         self._activity_id = 0
         self._panel_version = 0
         self._morph_count = 0
-        self._available_themes = list_pyhtmx_themes()
+        self._available_themes = list_themes()
         self._current_theme = DEFAULT_THEME
 
     @staticmethod
@@ -60,16 +60,16 @@ class API:
                 ).strip(),
             )
 
-        css = get_pyhtmx_theme_css(active_theme)
+        css = get_theme_css(active_theme)
         buttons_markup = "\n".join(buttons_html)
         return dedent(
             f"""
             <section id="theme-picker" class="demo-card">
-              <style data-pyhtmx-theme="{active_theme}">{css}</style>
+              <style data-pywebview-theme="{active_theme}">{css}</style>
               <h2>Theme Picker (Python-backed)</h2>
               <p class="muted">
                 These buttons call Python and swap this entire section. The returned
-                HTML includes a new <code>&lt;style data-pyhtmx-theme=...&gt;</code>
+                HTML includes a new <code>&lt;style data-pywebview-theme=...&gt;</code>
                 block, so the live UI theme changes immediately.
               </p>
               <div class="button-row">
@@ -248,7 +248,7 @@ class API:
               <h4>Dynamically Inserted Fragment</h4>
               <p>
                 These buttons did not exist on first load. They work because
-                pyHTMX re-processes swapped content.
+                PyWebview HTMX re-processes swapped content.
               </p>
               <div class="button-row">
                 <button
@@ -282,7 +282,7 @@ class API:
 
 api = API()
 DEMO_THEME = DEFAULT_THEME
-assert DEMO_THEME in list_pyhtmx_themes()
+assert DEMO_THEME in list_themes()
 
 html_content = """
 <!DOCTYPE html>
@@ -290,21 +290,21 @@ html_content = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>pyHTMX Feature Showcase</title>
+  <title>PyWebview HTMX Feature Showcase</title>
 </head>
 <body>
   <main class="app-shell">
     <header class="hero">
-      <h1>pyHTMX Feature Showcase</h1>
+      <h1>PyWebview HTMX Feature Showcase</h1>
       <p>
-        This demo intentionally exercises many pyHTMX capabilities: trigger types,
+        This demo intentionally exercises many PyWebview HTMX capabilities: trigger types,
         parameter payloads, swap modes (<code>innerHTML</code>,
         <code>append</code>, <code>outerHTML</code>), wait targets,
         concurrency policy, lifecycle events, and re-processing swapped fragments.
       </p>
       <div class="badge-row">
         <span class="chip">Live theme switch uses a Python API call</span>
-        <span class="chip">Theme CSS is shipped in the pyHTMX package</span>
+        <span class="chip">Theme CSS is shipped in the PyWebview HTMX package</span>
         <span class="chip">Styling system: CSS tokens</span>
         <span class="chip">Reusable components: card, button, field</span>
         <span class="chip">Utilities: grid, spacing, full-width</span>
@@ -550,18 +550,18 @@ html_content = """
 
       const applyConfig = () => {
         const selected = document.querySelector("input[name='policy']:checked");
-        if (!window.pyhtmx || !selected) {
+        if (!window.pywebviewHtmx || !selected) {
           return;
         }
 
-        window.pyhtmx.config.requestPolicy = selected.value;
-        window.pyhtmx.config.swapDelay = Number(swapDelay.value);
-        window.pyhtmx.config.settleDelay = Number(settleDelay.value);
+        window.pywebviewHtmx.config.requestPolicy = selected.value;
+        window.pywebviewHtmx.config.swapDelay = Number(swapDelay.value);
+        window.pywebviewHtmx.config.settleDelay = Number(settleDelay.value);
 
         configState.textContent =
-          "requestPolicy=" + window.pyhtmx.config.requestPolicy +
-          " | swapDelay=" + window.pyhtmx.config.swapDelay + "ms" +
-          " | settleDelay=" + window.pyhtmx.config.settleDelay + "ms";
+          "requestPolicy=" + window.pywebviewHtmx.config.requestPolicy +
+          " | swapDelay=" + window.pywebviewHtmx.config.swapDelay + "ms" +
+          " | settleDelay=" + window.pywebviewHtmx.config.settleDelay + "ms";
       };
 
       syncFormParams();
@@ -621,7 +621,7 @@ html_content = html_content.replace(
 
 if __name__ == "__main__":
     create_window(
-        "pyHTMX Feature Showcase",
+        "PyWebview HTMX Feature Showcase",
         html_content,
         js_api=api,
         theme=None,

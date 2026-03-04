@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pytest
 
-import pyhtmx.pyhtmx as pyhtmx_module
+import pywebview_htmx.runtime as runtime_module
 
 TESTED_BEHAVIOR_IDS = set(range(31, 43))
-SCRIPT_TAG = '<script data-pyhtmx="true">'
+SCRIPT_TAG = '<script data-pywebview-htmx="true">'
 
 
 def _noop() -> None:
@@ -20,9 +20,9 @@ def test_create_window_passes_title(monkeypatch: pytest.MonkeyPatch) -> None:
         captured["kwargs"] = kwargs
         return {"ok": True}
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    pyhtmx_module.create_window("my-title", "<html><body>x</body></html>")
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    runtime_module.create_window("my-title", "<html><body>x</body></html>")
     assert captured["args"][0] == "my-title"
 
 
@@ -33,9 +33,9 @@ def test_create_window_passes_injected_html(monkeypatch: pytest.MonkeyPatch) -> 
         captured["kwargs"] = kwargs
         return {"ok": True}
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    pyhtmx_module.create_window("title", "<html><body>x</body></html>")
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    runtime_module.create_window("title", "<html><body>x</body></html>")
     assert SCRIPT_TAG in captured["kwargs"]["html"]
 
 
@@ -47,9 +47,9 @@ def test_create_window_passes_js_api(monkeypatch: pytest.MonkeyPatch) -> None:
         captured["kwargs"] = kwargs
         return {"ok": True}
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    pyhtmx_module.create_window("title", "<html><body>x</body></html>", js_api=api)
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    runtime_module.create_window("title", "<html><body>x</body></html>", js_api=api)
     assert captured["kwargs"]["js_api"] is api
 
 
@@ -60,9 +60,9 @@ def test_create_window_forwards_kwargs(monkeypatch: pytest.MonkeyPatch) -> None:
         captured["kwargs"] = kwargs
         return {"ok": True}
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    pyhtmx_module.create_window(
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    runtime_module.create_window(
         "title",
         "<html><body>x</body></html>",
         width=900,
@@ -77,12 +77,12 @@ def test_create_window_forwards_kwargs(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_create_window_returns_webview_result(monkeypatch: pytest.MonkeyPatch) -> None:
     sentinel = object()
     monkeypatch.setattr(
-        pyhtmx_module.webview,
+        runtime_module.webview,
         "create_window",
         lambda *a, **k: sentinel,
     )
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    result = pyhtmx_module.create_window("title", "<html><body>x</body></html>")
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    result = runtime_module.create_window("title", "<html><body>x</body></html>")
     assert result is sentinel
 
 
@@ -97,9 +97,9 @@ def test_create_window_default_starts_webview_once(
     def fake_start():
         calls["start"] += 1
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", fake_start)
-    pyhtmx_module.create_window("title", "<html><body>x</body></html>")
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", fake_start)
+    runtime_module.create_window("title", "<html><body>x</body></html>")
     assert calls["start"] == 1
 
 
@@ -112,12 +112,12 @@ def test_create_window_start_false_skips_webview_start(
         calls["create_window"] += 1
         return object()
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
     def fake_start():
         calls["start"] += 1
 
-    monkeypatch.setattr(pyhtmx_module.webview, "start", fake_start)
-    pyhtmx_module.create_window("title", "<html><body>x</body></html>", start=False)
+    monkeypatch.setattr(runtime_module.webview, "start", fake_start)
+    runtime_module.create_window("title", "<html><body>x</body></html>", start=False)
     assert calls["create_window"] == 1
     assert calls["start"] == 0
 
@@ -130,13 +130,13 @@ def test_create_window_create_failure_does_not_start(
     def fake_create_window(*args, **kwargs):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
     def fake_start():
         calls["start"] += 1
 
-    monkeypatch.setattr(pyhtmx_module.webview, "start", fake_start)
+    monkeypatch.setattr(runtime_module.webview, "start", fake_start)
     with pytest.raises(RuntimeError, match="boom"):
-        pyhtmx_module.create_window("title", "<html><body>x</body></html>")
+        runtime_module.create_window("title", "<html><body>x</body></html>")
     assert calls["start"] == 0
 
 
@@ -152,10 +152,10 @@ def test_create_window_start_failure_propagates(
     def fake_start():
         raise RuntimeError("start-failed")
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", fake_start)
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", fake_start)
     with pytest.raises(RuntimeError, match="start-failed"):
-        pyhtmx_module.create_window("title", "<html><body>x</body></html>")
+        runtime_module.create_window("title", "<html><body>x</body></html>")
     assert calls["create_window"] == 1
 
 
@@ -168,9 +168,9 @@ def test_create_window_passes_single_marker_to_webview(
         captured["kwargs"] = kwargs
         return object()
 
-    monkeypatch.setattr(pyhtmx_module.webview, "create_window", fake_create_window)
-    monkeypatch.setattr(pyhtmx_module.webview, "start", _noop)
-    pyhtmx_module.create_window(
+    monkeypatch.setattr(runtime_module.webview, "create_window", fake_create_window)
+    monkeypatch.setattr(runtime_module.webview, "start", _noop)
+    runtime_module.create_window(
         "title",
         "<html><body>x</body></html>",
         start=False,

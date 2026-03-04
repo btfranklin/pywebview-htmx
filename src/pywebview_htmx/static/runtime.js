@@ -53,7 +53,7 @@
     try {
       return JSON.parse(raw);
     } catch (error) {
-      console.error("pyHTMX: invalid JSON in data-py-params", error);
+      console.error("PyWebview HTMX: invalid JSON in data-py-params", error);
       return {};
     }
   }
@@ -94,7 +94,7 @@
     return state;
   }
 
-  function processPyHTMXNodes(root = document) {
+  function processPyWebviewHtmxNodes(root = document) {
     if (!root || typeof root.querySelectorAll !== "function") {
       return;
     }
@@ -102,10 +102,10 @@
     const elements = root.querySelectorAll("[py-call]");
 
     elements.forEach((element) => {
-      if (element.getAttribute("data-pyhtmx-bound") === "true") {
+      if (element.getAttribute("data-pywebview-bound") === "true") {
         return;
       }
-      element.setAttribute("data-pyhtmx-bound", "true");
+      element.setAttribute("data-pywebview-bound", "true");
 
       const functionName = element.getAttribute("py-call");
       const eventName = element.getAttribute("py-trigger") || "click";
@@ -114,7 +114,7 @@
       const waitTarget = getWaitTarget(element);
 
       if (!functionName) {
-        console.warn("pyHTMX: py-call is empty", element);
+        console.warn("PyWebview HTMX: py-call is empty", element);
         return;
       }
 
@@ -150,7 +150,7 @@
 
           const target = targetSelector ? $(targetSelector) : element;
           if (!target) {
-            console.warn("pyHTMX: target element not found", targetSelector);
+            console.warn("PyWebview HTMX: target element not found", targetSelector);
             return;
           }
 
@@ -164,13 +164,13 @@
 
           const processRoot = pySwap(target, response, swapStyle);
           triggerEvent(target, "py:afterSwap", { response, requestId });
-          processPyHTMXNodes(processRoot);
+          processPyWebviewHtmxNodes(processRoot);
 
           if (config.settleDelay > 0) {
             await delay(config.settleDelay);
           }
         } catch (error) {
-          console.error("pyHTMX: error calling Python function", error);
+          console.error("PyWebview HTMX: error calling Python function", error);
           triggerEvent(element, "py:error", { error, requestId });
         } finally {
           state.inFlightCount = Math.max(0, state.inFlightCount - 1);
@@ -182,14 +182,14 @@
     });
   }
 
-  window.pyhtmx = {
+  window.pywebviewHtmx = {
     config,
-    process: processPyHTMXNodes,
+    process: processPyWebviewHtmxNodes,
     swap: pySwap,
     trigger: triggerEvent,
   };
 
   document.addEventListener("DOMContentLoaded", () => {
-    processPyHTMXNodes(document.body);
+    processPyWebviewHtmxNodes(document.body);
   });
 })();
