@@ -1,8 +1,38 @@
-*.py[codz]
+# Python bytecode / caches
+*.py[cod]
 __pycache__/
 .mypy_cache/
 .pytest_cache/
 .ruff_cache/
-.pdm-python
-.venv/
+.hypothesis/
+
+# Test / coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Packaging / build artifacts
+build/
 dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Environments / PDM
+.pdm-python
+.pdm.toml
+.pdm-build/
+__pypackages__/
+.venv/
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
