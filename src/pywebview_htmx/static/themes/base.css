@@ -156,6 +156,12 @@ body {
   filter: brightness(1.06);
 }
 
+.pyh-btn:active,
+.btn:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
 .pyh-btn-primary,
 .btn-primary {
   background: var(--pyh-btn-primary-bg);
@@ -299,8 +305,7 @@ body {
 }
 
 .py-waiting {
-  opacity: 0.55;
-  filter: saturate(0.7);
+  opacity: 0.88;
   pointer-events: none;
 }
 
