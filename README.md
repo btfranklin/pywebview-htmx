@@ -44,6 +44,34 @@ pdm install
 pdm add pywebview-htmx
 ```
 
+## Agent Skill
+
+This repository includes an installable coding-agent skill at
+`skills/use-pywebview-htmx/`.
+
+The folder in this repository is the source for a skill that tools such as
+[`npx skills`](https://skills.sh/) can discover and install from GitHub.
+
+List the available skill from this repository:
+
+```bash
+npx skills add btfranklin/pywebview-htmx --list --full-depth
+```
+
+Install just this skill:
+
+```bash
+npx skills add btfranklin/pywebview-htmx --skill use-pywebview-htmx
+```
+
+Other skill installers can consume the same skill folder from this repository.
+The skill includes:
+
+- the core usage workflow
+- a concise contract reference
+- implementation patterns
+- troubleshooting guidance
+
 ## Quick Start
 
 ```python
