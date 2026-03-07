@@ -90,6 +90,13 @@ def test_non_script_data_marker_does_not_block_injection() -> None:
     assert result.count(SCRIPT_MARKER) == 1
 
 
+def test_script_with_false_marker_does_not_block_injection() -> None:
+    html = '<html><body><script data-pywebview-htmx="false"></script></body></html>'
+    result = inject_runtime(html)
+    assert result != html
+    assert result.count(SCRIPT_MARKER) == 1
+
+
 def test_empty_html_input_gets_injected_script() -> None:
     result = inject_runtime("")
     assert MARKER in result

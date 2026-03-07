@@ -11,7 +11,15 @@ def _assert_fragments_present(js_compact: str, fragments: tuple[str, ...]) -> No
 
 
 JS_BEHAVIOR_FRAGMENTS: list[tuple[int, tuple[str, ...]]] = [
-    (73, ("if (event.cancelable)", "event.preventDefault();")),
+    (
+        73,
+        (
+            'function shouldPreventDefault(eventName)',
+            'return eventName === "submit";',
+            "if (shouldPreventDefault(eventName) && event.cancelable)",
+            "event.preventDefault();",
+        ),
+    ),
     (74, ("let state = requestState.get(element);", "if (!state) {")),
     (75, ("lastIssued: 0", "state.lastIssued = requestId;")),
     (76, ("inFlightCount: 0", "state.inFlightCount += 1;")),
@@ -27,7 +35,14 @@ JS_BEHAVIOR_FRAGMENTS: list[tuple[int, tuple[str, ...]]] = [
     (86, ("if (requestId !== state.lastIssued) { return; }",)),
     (87, ("const processRoot = pySwap(target, response, swapStyle);",)),
     (88, ("processPyWebviewHtmxNodes(processRoot);",)),
-    (89, ('triggerEvent(target, "py:afterSwap"',)),
+    (
+        89,
+        (
+            "const afterSwapTarget =",
+            'swapStyle === "outerHTML"',
+            'triggerEvent(afterSwapTarget, "py:afterSwap"',
+        ),
+    ),
     (90, ("if (config.settleDelay > 0)", "await delay(config.settleDelay);")),
     (91, ('triggerEvent(element, "py:error"', "requestId")),
     (92, ("state.inFlightCount = Math.max(0, state.inFlightCount - 1);",)),

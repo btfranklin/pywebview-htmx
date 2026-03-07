@@ -6,7 +6,10 @@ from typing import Any
 
 import webview
 
-_SCRIPT_TAG_RE = re.compile(r"<script[^>]*\bdata-pywebview-htmx\b", re.IGNORECASE)
+_SCRIPT_TAG_RE = re.compile(
+    r"<script[^>]*\bdata-pywebview-htmx\s*=\s*(?:[\"']true[\"']|true\b)",
+    re.IGNORECASE,
+)
 _THEME_TAG_RE = re.compile(
     r"<style[^>]*\bdata-pywebview-theme\s*=\s*[\"'](?P<name>[^\"']+)[\"'][^>]*>.*?</style>",
     re.IGNORECASE | re.DOTALL,

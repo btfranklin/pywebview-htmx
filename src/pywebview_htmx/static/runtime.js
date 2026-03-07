@@ -94,6 +94,10 @@
     return state;
   }
 
+  function shouldPreventDefault(eventName) {
+    return eventName === "submit";
+  }
+
   function processPyWebviewHtmxNodes(root = document) {
     if (!root || typeof root.querySelectorAll !== "function") {
       return;
@@ -119,7 +123,7 @@
       }
 
       element.addEventListener(eventName, async (event) => {
-        if (event.cancelable) {
+        if (shouldPreventDefault(eventName) && event.cancelable) {
           event.preventDefault();
         }
 
@@ -163,7 +167,11 @@
           }
 
           const processRoot = pySwap(target, response, swapStyle);
-          triggerEvent(target, "py:afterSwap", { response, requestId });
+          const afterSwapTarget =
+            swapStyle === "outerHTML"
+              ? (targetSelector ? $(targetSelector) || processRoot : processRoot)
+              : target;
+          triggerEvent(afterSwapTarget, "py:afterSwap", { response, requestId });
           processPyWebviewHtmxNodes(processRoot);
 
           if (config.settleDelay > 0) {
