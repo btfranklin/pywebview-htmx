@@ -1,0 +1,4 @@
+interface:
+  display_name: "Use pywebview-htmx"
+  short_description: "Build PyWebview UIs with py-* bindings"
+  default_prompt: "Use $use-pywebview-htmx to implement or debug declarative pywebview-htmx interactions and HTML-returning Python handlers."
