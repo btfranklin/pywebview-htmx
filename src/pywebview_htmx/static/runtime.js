@@ -58,6 +58,47 @@
     }
   }
 
+  function mergeParamValue(target, key, value) {
+    if (Object.prototype.hasOwnProperty.call(target, key)) {
+      const existing = target[key];
+      if (Array.isArray(existing)) {
+        existing.push(value);
+      } else {
+        target[key] = [existing, value];
+      }
+      return;
+    }
+    target[key] = value;
+  }
+
+  function serializeForm(form, event) {
+    const params = {};
+    const formData = new FormData(form);
+
+    for (const [key, value] of formData.entries()) {
+      if (typeof File !== "undefined" && value instanceof File) {
+        console.warn("PyWebview HTMX: file inputs are not supported in data-py-params", key);
+        continue;
+      }
+      mergeParamValue(params, key, value);
+    }
+
+    const submitter = event && "submitter" in event ? event.submitter : null;
+    if (submitter && submitter.name) {
+      mergeParamValue(params, submitter.name, submitter.value || "");
+    }
+
+    return params;
+  }
+
+  function buildRequestParams(element, eventName, event) {
+    const params = parseParams(element);
+    if (element.tagName !== "FORM" || eventName !== "submit") {
+      return params;
+    }
+    return { ...params, ...serializeForm(element, event) };
+  }
+
   function getWaitTarget(element) {
     if (!element.hasAttribute("py-wait")) {
       return element;
@@ -98,12 +139,24 @@
     return eventName === "submit";
   }
 
+  function getRequestPolicy(element) {
+    const policy = element.getAttribute("py-policy") || config.requestPolicy;
+    if (policy === "drop" || policy === "latest-wins") {
+      return policy;
+    }
+    return config.requestPolicy;
+  }
+
   function processPyWebviewHtmxNodes(root = document) {
     if (!root || typeof root.querySelectorAll !== "function") {
       return;
     }
 
-    const elements = root.querySelectorAll("[py-call]");
+    const elements = [];
+    if (root.matches && root.matches("[py-call]")) {
+      elements.push(root);
+    }
+    elements.push(...root.querySelectorAll("[py-call]"));
 
     elements.forEach((element) => {
       if (element.getAttribute("data-pywebview-bound") === "true") {
@@ -127,9 +180,10 @@
           event.preventDefault();
         }
 
-        const params = parseParams(element);
+        const params = buildRequestParams(element, eventName, event);
         const state = getRequestState(element);
-        if (config.requestPolicy === "drop" && state.inFlightCount > 0) {
+        const requestPolicy = getRequestPolicy(element);
+        if (requestPolicy === "drop" && state.inFlightCount > 0) {
           triggerEvent(element, "py:ignored", { reason: "in-flight" });
           return;
         }
@@ -150,6 +204,9 @@
           const response = await invokePython(functionName, params);
           if (requestId !== state.lastIssued) {
             return;
+          }
+          if (typeof response !== "string") {
+            throw new Error("PyWebview HTMX: Python API methods must return an HTML string");
           }
 
           const target = targetSelector ? $(targetSelector) : element;

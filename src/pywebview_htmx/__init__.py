@@ -1,6 +1,7 @@
 from .runtime import (
     DEFAULT_THEME,
     create_window,
+    encode_params_attr,
     get_runtime_script,
     get_theme_css,
     inject_runtime,
@@ -11,6 +12,7 @@ from .runtime import (
 __all__ = [
     "DEFAULT_THEME",
     "create_window",
+    "encode_params_attr",
     "get_runtime_script",
     "get_theme_css",
     "inject_runtime",

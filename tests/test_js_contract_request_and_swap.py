@@ -23,7 +23,7 @@ JS_BEHAVIOR_FRAGMENTS: list[tuple[int, tuple[str, ...]]] = [
     (74, ("let state = requestState.get(element);", "if (!state) {")),
     (75, ("lastIssued: 0", "state.lastIssued = requestId;")),
     (76, ("inFlightCount: 0", "state.inFlightCount += 1;")),
-    (77, ('config.requestPolicy === "drop"', 'triggerEvent(element, "py:ignored"')),
+    (77, ('requestPolicy === "drop"', 'triggerEvent(element, "py:ignored"')),
     (78, ('triggerEvent(element, "py:trigger"', "requestId,")),
     (79, ('waitTarget.classList.add("py-waiting")',)),
     (80, ("if (requestId !== state.lastIssued) { return; }",)),

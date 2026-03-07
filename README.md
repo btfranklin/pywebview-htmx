@@ -77,6 +77,18 @@ create_window("Quickstart", html, js_api=API())
 You do **not** manually include `runtime.js` when using `create_window()`;
 it is injected automatically.
 
+## Important Differences From HTMX
+
+- There is no HTTP request layer. `pywebview-htmx` calls a Python method on
+  `window.pywebview.api` directly.
+- Python handlers should return an HTML string fragment. Returning objects or
+  other data types is treated as an error.
+- For ordinary buttons/links, params still come from `data-py-params`.
+- For `<form py-trigger="submit">`, named fields are serialized automatically
+  and merged over `data-py-params`.
+- Returned HTML is inserted directly into the DOM, so escape untrusted values
+  before returning markup.
+
 ## API Reference (Python)
 
 ### `create_window(title, html, js_api=None, theme="aurora", start=True, **kwargs)`
@@ -102,6 +114,18 @@ Returns the bundled JavaScript runtime as a string.
 ### `inject_runtime(html)`
 
 Injects the runtime script tag into an HTML string (idempotent).
+
+### `encode_params_attr(params)`
+
+Returns HTML-escaped JSON that is safe to place in a `data-py-params`
+attribute.
+
+```python
+from pywebview_htmx import encode_params_attr
+
+payload = encode_params_attr({"user_id": 42, "mode": "full"})
+button = f'<button data-py-params="{payload}">Load user</button>'
+```
 
 ### Theme helpers
 
@@ -143,6 +167,8 @@ JSON payload passed to Python method.
 Notes:
 - If missing, params default to `{}`.
 - Invalid JSON logs an error and falls back to `{}`.
+- For submit-triggered forms, named form fields are serialized automatically and
+  merged over this payload.
 
 ### `py-target` (optional)
 
@@ -162,6 +188,14 @@ Unknown value falls back to `innerHTML`.
 
 CSS selector of element receiving `.py-waiting` while request is in flight.
 If missing/empty/unresolvable, the triggering element is used.
+
+### `py-policy` (optional)
+
+Per-element concurrency override. If omitted, the global
+`window.pywebviewHtmx.config.requestPolicy` value is used.
+
+- `latest-wins`
+- `drop`
 
 ## Runtime Config (JavaScript)
 
@@ -257,7 +291,8 @@ behavior, add your own `<style data-pywebview-theme="my-theme">...</style>` bloc
 ### Pattern 1: Form submit to Python
 
 - Use `py-trigger="submit"` on `<form>`
-- Keep `data-py-params` in sync from form inputs (via JS)
+- Give fields `name` attributes so they can be serialized
+- Use `data-py-params` only for extra static values you want merged in
 - `py-target` a result card/summary region
 
 ### Pattern 2: Append activity/log rows
@@ -268,7 +303,8 @@ behavior, add your own `<style data-pywebview-theme="my-theme">...</style>` bloc
 ### Pattern 3: Replace full component
 
 - Use `py-swap="outerHTML"`
-- Return full replacement markup with same outer id/selector
+- Return full replacement markup with the same outer id/selector if future
+  interactions should keep targeting that component
 
 ### Pattern 4: Theme switch from Python
 
@@ -291,6 +327,7 @@ Check:
 - method returns a string of HTML
 - no JSON parse error in `data-py-params`
 - `py-target` selector exists
+- for forms, fields have `name` attributes
 
 ### "New buttons in swapped HTML do not work"
 
@@ -304,6 +341,21 @@ window.pywebviewHtmx.process(document.body);
 ### "Loading state looks wrong"
 
 Style `.py-waiting` globally and/or point `py-wait` at a dedicated element.
+
+### "I got a Python API return type error"
+
+`pywebview-htmx` expects handlers to return an HTML string fragment. Convert
+structured data into markup before returning it.
+
+## Common Mistakes
+
+- Returning dicts/lists instead of HTML strings
+- Forgetting to escape untrusted values before interpolating into markup
+- Omitting `name` attributes on form fields and expecting them to serialize
+- Using `py-swap="outerHTML"` but not preserving the target component's
+  selector/id
+- Manually mutating the DOM outside of `pywebview-htmx` swaps without calling
+  `window.pywebviewHtmx.process(...)`
 
 ## Demo
 

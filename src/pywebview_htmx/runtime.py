@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from importlib.resources import files
+import json
 import re
+from html import escape as html_escape
 from typing import Any
 
 import webview
@@ -53,6 +55,14 @@ def get_runtime_script() -> str:
     """Read the bundled JavaScript runtime from package resources."""
     return files("pywebview_htmx").joinpath("static/runtime.js").read_text(
         encoding="utf-8",
+    )
+
+
+def encode_params_attr(params: Any) -> str:
+    """Encode a payload for safe embedding in ``data-py-params``."""
+    return html_escape(
+        json.dumps(params, sort_keys=True),
+        quote=True,
     )
 
 

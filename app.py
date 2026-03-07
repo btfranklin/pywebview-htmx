@@ -12,6 +12,7 @@ from threading import Lock
 from pywebview_htmx import (
     DEFAULT_THEME,
     create_window,
+    encode_params_attr,
     get_theme_css,
     list_themes,
 )
@@ -32,7 +33,7 @@ class API:
 
     @staticmethod
     def _json_attr(payload: dict[str, object]) -> str:
-        return html_escape(json.dumps(payload), quote=True)
+        return encode_params_attr(payload)
 
     def _normalize_theme(self, requested: object) -> str:
         candidate = str(requested).strip().lower()
@@ -413,17 +414,16 @@ html_content = """
 
       <section class="demo-card">
         <h3>5) Custom trigger: form submit</h3>
-        <p class="muted">The form uses <code>py-trigger="submit"</code> and JS keeps payload synced.</p>
+        <p class="muted">The form uses <code>py-trigger="submit"</code> and PyWebview HTMX serializes named fields automatically.</p>
         <form
           id="echo-form"
           class="field-row"
           py-call="echo_message"
           py-trigger="submit"
           py-target="#echo-result"
-          data-py-params='{}'
           py-wait="#echo-form">
-          <input id="echo-message" type="text" placeholder="Type a short message">
-          <select id="echo-mood">
+          <input id="echo-message" name="message" type="text" placeholder="Type a short message">
+          <select id="echo-mood" name="mood">
             <option value="focused">focused</option>
             <option value="curious">curious</option>
             <option value="celebratory">celebratory</option>
@@ -519,9 +519,6 @@ html_content = """
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const form = document.querySelector("#echo-form");
-      const messageInput = document.querySelector("#echo-message");
-      const moodInput = document.querySelector("#echo-mood");
       const eventLog = document.querySelector("#event-log");
       const configState = document.querySelector("#config-state");
       const swapDelay = document.querySelector("#swap-delay");
@@ -540,14 +537,6 @@ html_content = """
         }
       };
 
-      const syncFormParams = () => {
-        const params = {
-          message: messageInput.value,
-          mood: moodInput.value,
-        };
-        form.setAttribute("data-py-params", JSON.stringify(params));
-      };
-
       const applyConfig = () => {
         const selected = document.querySelector("input[name='policy']:checked");
         if (!window.pywebviewHtmx || !selected) {
@@ -563,11 +552,6 @@ html_content = """
           " | swapDelay=" + window.pywebviewHtmx.config.swapDelay + "ms" +
           " | settleDelay=" + window.pywebviewHtmx.config.settleDelay + "ms";
       };
-
-      syncFormParams();
-      messageInput.addEventListener("input", syncFormParams);
-      moodInput.addEventListener("change", syncFormParams);
-      form.addEventListener("submit", syncFormParams, true);
 
       policyInputs.forEach((input) => input.addEventListener("change", applyConfig));
       swapDelay.addEventListener("input", applyConfig);
