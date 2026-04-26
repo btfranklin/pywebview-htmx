@@ -44,6 +44,11 @@ pdm install
 pdm add pywebview-htmx
 ```
 
+## Maintainer Docs
+
+For maintainer and agent-facing repository guidance, see
+[`docs/index.md`](docs/index.md).
+
 ## Agent Skill
 
 This repository includes an installable coding-agent skill at
