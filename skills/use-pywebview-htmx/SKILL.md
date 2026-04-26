@@ -38,7 +38,9 @@ Use the smallest declarative binding that fits the interaction.
 - Use `py-swap="outerHTML"` only when you are returning a full replacement component.
 - Preserve the same outer selector or `id` on `outerHTML` replacements if later interactions still target that component.
 - Use `py-wait` to move loading state onto a dedicated indicator.
-- Use `py-policy` when one element needs different concurrency behavior than the global runtime config.
+- Use `py-policy` when a triggering control needs different request acceptance
+  behavior than the global runtime config. If controls share a `py-target`, they
+  also share request state.
 
 ### 3. Shape params safely
 
@@ -67,7 +69,9 @@ need explicit processing.
 - Call `window.pywebviewHtmx.process(root)` after inserting interactive nodes outside a normal pywebview-htmx swap.
 - Listen for `py:error`, `py:ignored`, `py:beforeSwap`, and `py:afterSwap` when debugging.
 - Adjust global timing or request behavior through `window.pywebviewHtmx.config`.
-- Use per-element `py-policy` when only one control should use `drop`.
+- Use `py-policy` when a specific trigger should use `drop`; remember that
+  controls sharing a resolved `py-target` coordinate against the same in-flight
+  state.
 
 For failure cases and checks, read `references/troubleshooting.md`.
 

@@ -73,4 +73,7 @@ Remember:
 
 - `py-wait` points loading state at another element
 - missing or empty `py-wait` means the triggering element gets `.py-waiting`
-- if the wait target selector is wrong, the trigger element is used as fallback
+- if the wait target selector is wrong or invalid, the trigger element is used
+  as fallback
+- shared wait targets stay waiting until all in-flight requests using that target
+  have settled

@@ -220,7 +220,7 @@ Unknown value falls back to `innerHTML`.
 ### `py-wait` (optional)
 
 CSS selector of element receiving `.py-waiting` while request is in flight.
-If missing/empty/unresolvable, the triggering element is used.
+If missing, empty, invalid, or unresolvable, the triggering element is used.
 
 ### `py-policy` (optional)
 
@@ -267,17 +267,21 @@ document.body.addEventListener("py:error", (event) => {
 
 ## Concurrency Behavior
 
-Per trigger element, `pywebview-htmx` tracks request state.
+`pywebview-htmx` tracks request state by resolved target. Controls that share
+the same `py-target` coordinate request ordering and `drop` behavior. Controls
+without `py-target` use the triggering element as their request state scope.
+Loading state is counted separately per resolved `py-wait` target so shared
+spinners stay active until all in-flight requests finish.
 
 ### `latest-wins` (default)
 
-Multiple rapid requests are allowed; stale responses are ignored.
-Only latest request updates the DOM.
+Multiple rapid requests are allowed; stale responses in the same request state
+scope are ignored. Only the latest request for that scope updates the DOM.
 
 ### `drop`
 
-If a request is already in flight for that element, new triggers are ignored and
-`py:ignored` is emitted.
+If a request is already in flight for the same request state scope, new triggers
+are ignored and `py:ignored` is emitted.
 
 ## Dynamic Content Re-processing
 

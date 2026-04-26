@@ -94,7 +94,8 @@ Use global config for broad behavior changes:
 window.pywebviewHtmx.config.requestPolicy = "drop";
 ```
 
-Use `py-policy` when only one element needs different behavior:
+Use `py-policy` when one trigger needs different behavior. If multiple triggers
+share a resolved `py-target`, they also share request state:
 
 ```html
 <button

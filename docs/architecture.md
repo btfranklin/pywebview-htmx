@@ -46,6 +46,9 @@ same pass when each surface is affected.
   named field values over static params.
 - `py-target` selects the swap target. If omitted, the triggering element is
   updated.
+- Request state is scoped to the resolved `py-target` when present, and to the
+  triggering element otherwise. Shared wait targets keep a separate in-flight
+  count for `.py-waiting`.
 - `py-swap="outerHTML"` replacements must preserve any selector or `id` that
   future interactions still target.
 - Swapped content is re-processed automatically. Manual DOM insertion still

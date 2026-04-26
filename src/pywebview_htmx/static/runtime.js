@@ -8,10 +8,16 @@
     requestPolicy: "latest-wins",
   };
   const requestState = new WeakMap();
+  const waitState = new WeakMap();
 
   function $(selector, root = document) {
     if (!selector) return null;
-    return root.querySelector(selector);
+    try {
+      return root.querySelector(selector);
+    } catch (error) {
+      console.warn("PyWebview HTMX: invalid selector", selector, error);
+      return null;
+    }
   }
 
   function triggerEvent(target, eventName, detail = {}) {
@@ -126,13 +132,36 @@
     return await func(params);
   }
 
-  function getRequestState(element) {
-    let state = requestState.get(element);
+  function getRequestState(key) {
+    let state = requestState.get(key);
     if (!state) {
       state = { lastIssued: 0, inFlightCount: 0 };
-      requestState.set(element, state);
+      requestState.set(key, state);
     }
     return state;
+  }
+
+  function getRequestStateKey(element, targetSelector) {
+    if (!targetSelector) {
+      return element;
+    }
+    return $(targetSelector) || element;
+  }
+
+  function addWaiting(waitTarget) {
+    const count = (waitState.get(waitTarget) || 0) + 1;
+    waitState.set(waitTarget, count);
+    waitTarget.classList.add("py-waiting");
+  }
+
+  function removeWaiting(waitTarget) {
+    const count = Math.max(0, (waitState.get(waitTarget) || 0) - 1);
+    if (count === 0) {
+      waitState.delete(waitTarget);
+      waitTarget.classList.remove("py-waiting");
+      return;
+    }
+    waitState.set(waitTarget, count);
   }
 
   function shouldPreventDefault(eventName) {
@@ -181,7 +210,7 @@
         }
 
         const params = buildRequestParams(element, eventName, event);
-        const state = getRequestState(element);
+        const state = getRequestState(getRequestStateKey(element, targetSelector));
         const requestPolicy = getRequestPolicy(element);
         if (requestPolicy === "drop" && state.inFlightCount > 0) {
           triggerEvent(element, "py:ignored", { reason: "in-flight" });
@@ -198,7 +227,7 @@
           requestId,
         });
 
-        waitTarget.classList.add("py-waiting");
+        addWaiting(waitTarget);
 
         try {
           const response = await invokePython(functionName, params);
@@ -239,9 +268,7 @@
           triggerEvent(element, "py:error", { error, requestId });
         } finally {
           state.inFlightCount = Math.max(0, state.inFlightCount - 1);
-          if (state.inFlightCount === 0) {
-            waitTarget.classList.remove("py-waiting");
-          }
+          removeWaiting(waitTarget);
         }
       });
     });

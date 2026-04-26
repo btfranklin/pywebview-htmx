@@ -93,3 +93,9 @@ def test_development_guidance_captures_package_policy() -> None:
         "Development guidance is missing durable instruction(s): "
         f"{missing_fragments}"
     )
+
+
+def test_typed_classifier_has_pep_561_marker() -> None:
+    pyproject = _read_repo_file("pyproject.toml")
+    assert "Typing :: Typed" in pyproject
+    assert (REPO_ROOT / "src/pywebview_htmx/py.typed").is_file()

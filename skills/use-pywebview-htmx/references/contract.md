@@ -37,8 +37,8 @@ Normal app usage should go through `create_window()`.
 - `py-policy`: optional per-element request policy override, `latest-wins` or `drop`
 
 If `py-target` is omitted, the triggering element is the target.
-If `py-wait` is missing, empty, or unresolved, the triggering element receives
-`.py-waiting`.
+If `py-wait` is missing, empty, invalid, or unresolved, the triggering element
+receives `.py-waiting`.
 
 ## Params contract
 
@@ -62,6 +62,11 @@ Available on `window.pywebviewHtmx.config`:
 
 Global config is the default. `py-policy` overrides request behavior for a single
 element.
+
+Request state is scoped to the resolved `py-target` when present, and to the
+triggering element otherwise. Controls that target the same element coordinate
+`latest-wins` and `drop` behavior. Loading state is counted separately per
+resolved `py-wait` target.
 
 ## Events
 

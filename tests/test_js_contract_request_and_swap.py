@@ -20,12 +20,25 @@ JS_BEHAVIOR_FRAGMENTS: list[tuple[int, tuple[str, ...]]] = [
             "event.preventDefault();",
         ),
     ),
-    (74, ("let state = requestState.get(element);", "if (!state) {")),
+    (
+        74,
+        (
+            "function getRequestState(key)",
+            "let state = requestState.get(key);",
+            "requestState.set(key, state);",
+        ),
+    ),
     (75, ("lastIssued: 0", "state.lastIssued = requestId;")),
     (76, ("inFlightCount: 0", "state.inFlightCount += 1;")),
     (77, ('requestPolicy === "drop"', 'triggerEvent(element, "py:ignored"')),
     (78, ('triggerEvent(element, "py:trigger"', "requestId,")),
-    (79, ('waitTarget.classList.add("py-waiting")',)),
+    (
+        79,
+        (
+            "function addWaiting(waitTarget)",
+            'waitTarget.classList.add("py-waiting")',
+        ),
+    ),
     (80, ("if (requestId !== state.lastIssued) { return; }",)),
     (81, ("const target = targetSelector ? $(targetSelector) : element;",)),
     (82, (" : element;",)),
@@ -50,7 +63,7 @@ JS_BEHAVIOR_FRAGMENTS: list[tuple[int, tuple[str, ...]]] = [
     (
         94,
         (
-            "if (state.inFlightCount === 0)",
+            "function removeWaiting(waitTarget)",
             'waitTarget.classList.remove("py-waiting")',
         ),
     ),
