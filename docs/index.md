@@ -7,12 +7,14 @@ the user-facing package overview.
 
 - User-facing package overview: [../README.md](../README.md)
 - Architecture and boundaries: [architecture.md](architecture.md)
-- Development, validation, and release notes: [development.md](development.md)
+- Development and validation: [development.md](development.md)
+- Release process and release notes flow: [releasing.md](releasing.md)
 - Python runtime helpers: [../src/pywebview_htmx/runtime.py](../src/pywebview_htmx/runtime.py)
 - JavaScript runtime: [../src/pywebview_htmx/static/runtime.js](../src/pywebview_htmx/static/runtime.js)
 - Manual feature showcase: [../app.py](../app.py)
 - Tests: [../tests/](../tests/)
 - CI workflow: [../.github/workflows/python-package.yml](../.github/workflows/python-package.yml)
+- Release notes workflow: [../.github/workflows/draft-release-notes.yml](../.github/workflows/draft-release-notes.yml)
 - Release publishing workflow: [../.github/workflows/python-publish.yml](../.github/workflows/python-publish.yml)
 
 ## Agent Skill

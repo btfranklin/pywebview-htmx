@@ -23,7 +23,10 @@ into a runner, but project dependencies belong in `pyproject.toml` and
 
 - Pull requests and pushes to `main` run lint and tests through
   [../.github/workflows/python-package.yml](../.github/workflows/python-package.yml).
-- Published GitHub releases build and upload the package through
+- Release preparation and publishing order are documented in
+  [releasing.md](releasing.md). Push the version tag first so
+  `release-notes-scribe` can draft the GitHub Release notes.
+- Published GitHub Releases build and upload the package through
   [../.github/workflows/python-publish.yml](../.github/workflows/python-publish.yml).
 - Versioning is SCM-derived through PDM configuration in
   [../pyproject.toml](../pyproject.toml).

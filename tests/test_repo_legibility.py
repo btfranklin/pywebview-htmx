@@ -10,6 +10,7 @@ REQUIRED_DOCS = [
     "docs/index.md",
     "docs/architecture.md",
     "docs/development.md",
+    "docs/releasing.md",
 ]
 AGENT_REQUIRED_ROUTES = [
     "README.md",
@@ -18,6 +19,7 @@ AGENT_REQUIRED_ROUTES = [
     "src/pywebview_htmx/static/runtime.js",
     "app.py",
     "pyproject.toml",
+    "docs/releasing.md",
     "tests/",
     "skills/use-pywebview-htmx/",
 ]
@@ -92,6 +94,28 @@ def test_development_guidance_captures_package_policy() -> None:
     assert not missing_fragments, (
         "Development guidance is missing durable instruction(s): "
         f"{missing_fragments}"
+    )
+
+
+def test_release_guidance_captures_tag_first_release_notes_flow() -> None:
+    release_guidance = _read_repo_file("docs/releasing.md")
+
+    required_fragments = [
+        "release-notes-scribe",
+        "Draft Release Notes",
+        "git tag",
+        "git push origin",
+        ".github/workflows/draft-release-notes.yml",
+        ".github/workflows/python-publish.yml",
+        "PyPI",
+    ]
+    missing_fragments = [
+        fragment for fragment in required_fragments if fragment not in release_guidance
+    ]
+
+    assert not missing_fragments, (
+        "Release guidance must preserve the tag-first release notes process. "
+        f"Missing: {missing_fragments}"
     )
 
 

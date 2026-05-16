@@ -12,6 +12,7 @@ Use this file as the fast route into the repository. Keep durable details in
 - Manual runtime showcase: [app.py](app.py)
 - Test suite: [tests/](tests/)
 - Package and tool config: [pyproject.toml](pyproject.toml)
+- Release process: [docs/releasing.md](docs/releasing.md)
 - Installable coding-agent skill: [skills/use-pywebview-htmx/](skills/use-pywebview-htmx/)
 
 ## Development Rules
