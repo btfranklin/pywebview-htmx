@@ -1,6 +1,7 @@
 ---
 name: use-pywebview-htmx
-description: Build or modify PyWebview desktop UIs with pywebview-htmx. Use when a task involves pywebview_htmx, create_window(), py-call/py-trigger/py-target/py-swap/py-wait/py-policy attributes, Python handlers exposed through js_api, form submit serialization, dynamic fragment processing, or bundled theme helpers.
+description: >-
+  Use when building, modifying, or debugging PyWebview desktop UIs that use pywebview-htmx declarative `py-*` bindings, including `create_window()`, `py-call`, `py-trigger`, `py-target`, `py-swap`, `py-wait`, `py-policy`, Python `js_api` handlers, form submit serialization, dynamic fragment processing, and bundled theme helpers. Do not use for generic PyWebview apps without pywebview-htmx, browser/server HTMX over HTTP, Django HTMX, general desktop UI design, or JavaScript-only frontend debugging unless pywebview-htmx bindings are central. Output code or a concrete implementation/debug plan that verifies Python handlers, params, swap targets, loading/concurrency behavior, HTML escaping, dynamic re-processing, and runtime validation steps.
 ---
 
 # Use Pywebview Htmx
@@ -88,3 +89,4 @@ For failure cases and checks, read `references/troubleshooting.md`.
 - `references/contract.md`: concise API and runtime contract
 - `references/patterns.md`: copyable interaction patterns and implementation choices
 - `references/troubleshooting.md`: common mistakes and debugging checklist
+- `examples/interaction-debug-output.md`: compact output shape for implementation or debugging reports
