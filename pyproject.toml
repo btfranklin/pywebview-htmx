@@ -6,7 +6,7 @@ authors = [
     {name = "B.T. Franklin", email = "brandon.franklin@gmail.com"},
 ]
 dependencies = [
-    "pywebview>=6.1",
+    "pywebview>=6.2.1",
 ]
 requires-python = ">=3.14"
 readme = "README.md"
@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [build-system]
-requires = ["pdm-backend"]
+requires = ["pdm-backend>=2.4.9"]
 build-backend = "pdm.backend"
 
 [tool.pdm]
@@ -39,8 +39,8 @@ includes = ["src/pywebview_htmx"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.2",
-    "ruff>=0.15.4",
+    "pytest>=9.0.3",
+    "ruff>=0.15.17",
 ]
 
 [tool.pytest.ini_options]
