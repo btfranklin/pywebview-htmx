@@ -39,8 +39,8 @@ includes = ["src/pywebview_htmx"]
 
 [dependency-groups]
 dev = [
-    "pytest>=9.0.3",
-    "ruff>=0.15.17",
+    "pytest>=9.1.1",
+    "ruff>=0.15.19",
 ]
 
 [tool.pytest.ini_options]

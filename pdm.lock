@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:62f129fba35cc1d00f025fdb6e9ae58033f08ec8aa825a30854d7a45d9572313"
+content_hash = "sha256:1dcfcc477cec499adb939c984a88b9d24d0f5a5829aa29972df536d9b2596eb9"
 
 [[metadata.targets]]
 requires_python = "==3.14.*"
@@ -156,103 +156,103 @@ files = [
 
 [[package]]
 name = "pyobjc-core"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Python<->ObjC Interoperability Module"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 files = [
-    {file = "pyobjc_core-12.2-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:a51352e478785cd7fce1604b9902125a286139caea0759cb340e59d75b594992"},
-    {file = "pyobjc_core-12.2-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:3137b2d14f9f2154fb5b1c092c38d15e164f68ab190c18335d76e4e7e1583f79"},
-    {file = "pyobjc_core-12.2.tar.gz", hash = "sha256:51d7de4cfa32f508c6a7aac31f131b12d5e196a8dcf588e6e8d7e6337224f66d"},
+    {file = "pyobjc_core-12.2.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:2b8fc0531c27277325e113ac00b8a72a82e6145f0a88175b9425d8de814ff69a"},
+    {file = "pyobjc_core-12.2.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:9bef500f979e22d54f9da3aaebf6a48f873234b324858bd69256055a318955c7"},
+    {file = "pyobjc_core-12.2.1.tar.gz", hash = "sha256:7a7b9b018402342cf32bf1956366896350fbe5c0478cb3ef59778f77abed7f07"},
 ]
 
 [[package]]
 name = "pyobjc-framework-cocoa"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Wrappers for the Cocoa frameworks on macOS"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 dependencies = [
-    "pyobjc-core>=12.2",
+    "pyobjc-core>=12.2.1",
 ]
 files = [
-    {file = "pyobjc_framework_cocoa-12.2-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:aecfd44908fa12a9291fb6ca2458ebbc611102de6784f2202a35fd5ed9f56c60"},
-    {file = "pyobjc_framework_cocoa-12.2-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:ef679740f541c52118149b558b757d1f11d9dcf30c2a23344b13a6af6a99a1ab"},
-    {file = "pyobjc_framework_cocoa-12.2.tar.gz", hash = "sha256:20b392e2b7241caad0538dfde12143343e5dfe48f72e7df660a7548e635903dc"},
+    {file = "pyobjc_framework_cocoa-12.2.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:b386c324d64ae565c1f6b7dfb77be68f640a1c7c23caa6966ab661131f519561"},
+    {file = "pyobjc_framework_cocoa-12.2.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:a6c584e2af0813cb2f6103b184e632665a26f58c1bd5b08ffd6e95a19c617f7b"},
+    {file = "pyobjc_framework_cocoa-12.2.1.tar.gz", hash = "sha256:b94b37fe5730e5ae1fb0052912cd174e6ec329b0bfba4a012ae5db1014b5864b"},
 ]
 
 [[package]]
 name = "pyobjc-framework-quartz"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Wrappers for the Quartz frameworks on macOS"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 dependencies = [
-    "pyobjc-core>=12.2",
-    "pyobjc-framework-Cocoa>=12.2",
+    "pyobjc-core>=12.2.1",
+    "pyobjc-framework-Cocoa>=12.2.1",
 ]
 files = [
-    {file = "pyobjc_framework_quartz-12.2-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:08f7c7b42de70875cee15f4d0e217471e382ffac44d0a5bcfd30f583b9b41adb"},
-    {file = "pyobjc_framework_quartz-12.2-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:57553e7085191f9421ec78fe57a8a0c8462e39d675014ac1e4b389381f04535a"},
-    {file = "pyobjc_framework_quartz-12.2.tar.gz", hash = "sha256:b343395d4790323b0376fe20c83ac468510ba19f65429323ca211708c939d107"},
+    {file = "pyobjc_framework_quartz-12.2.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:ceb56939c337b36d9d81185ade31f77dc52c85cf79bb16e53e9b32f54b6bb3f5"},
+    {file = "pyobjc_framework_quartz-12.2.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:8105c98b798f2bf81c05c54bddeeadbf62f0b5dfec13bd6e719dd2cdf7e1cddf"},
+    {file = "pyobjc_framework_quartz-12.2.1.tar.gz", hash = "sha256:b3b8b6f71e66147f8ff9e6213864cc8527e3a0b1ee90835b93ce221f4802d9b0"},
 ]
 
 [[package]]
 name = "pyobjc-framework-security"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Wrappers for the framework Security on macOS"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 dependencies = [
-    "pyobjc-core>=12.2",
-    "pyobjc-framework-Cocoa>=12.2",
+    "pyobjc-core>=12.2.1",
+    "pyobjc-framework-Cocoa>=12.2.1",
 ]
 files = [
-    {file = "pyobjc_framework_security-12.2-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:a837738a85884518fa7d50de4b88c1df0fcc67241a05dec1b36272cb3aa37e22"},
-    {file = "pyobjc_framework_security-12.2-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:448b9658b59bcf56f4bcdf9345592fb719db711cb0f490f75cdffc82121b7c8f"},
-    {file = "pyobjc_framework_security-12.2.tar.gz", hash = "sha256:ef4d2d852a09360929e284c6f355964d84ac88b170207de1ac299fa1e1c33e40"},
+    {file = "pyobjc_framework_security-12.2.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:5319ae49b8874363ab51c6ff4d85d4ea0cfa6d836fe0306e901ba9ae560b880d"},
+    {file = "pyobjc_framework_security-12.2.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:21618431e0dbfbd3d4029445e3118af88e5d7e52ddecf9a2d17c759c51628d85"},
+    {file = "pyobjc_framework_security-12.2.1.tar.gz", hash = "sha256:d7831b1537f4346892e7f2f0e2b09d79bee98919b0767f4061278d0e03028f2d"},
 ]
 
 [[package]]
 name = "pyobjc-framework-uniformtypeidentifiers"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Wrappers for the framework UniformTypeIdentifiers on macOS"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 dependencies = [
-    "pyobjc-core>=12.2",
-    "pyobjc-framework-Cocoa>=12.2",
+    "pyobjc-core>=12.2.1",
+    "pyobjc-framework-Cocoa>=12.2.1",
 ]
 files = [
-    {file = "pyobjc_framework_uniformtypeidentifiers-12.2-py2.py3-none-any.whl", hash = "sha256:f140a378cfe6a8ca47ce3b04fd5a4c4bec1fcbedac8acc87e2c18985bb805203"},
-    {file = "pyobjc_framework_uniformtypeidentifiers-12.2.tar.gz", hash = "sha256:19cc82f1bbf3bc0999597779711422f6c9d7340634d699ae64d9bc7c0d79f984"},
+    {file = "pyobjc_framework_uniformtypeidentifiers-12.2.1-py2.py3-none-any.whl", hash = "sha256:ea08413ad895a7dfea13670e26548bcf5b00154084cdfb5d8f96603320e77cf3"},
+    {file = "pyobjc_framework_uniformtypeidentifiers-12.2.1.tar.gz", hash = "sha256:1fb89d13aa3c2df8e6d6536f6df3493fe5a6caefd2a5adebf17c5af3b29ed4a2"},
 ]
 
 [[package]]
 name = "pyobjc-framework-webkit"
-version = "12.2"
+version = "12.2.1"
 requires_python = ">=3.10"
 summary = "Wrappers for the framework WebKit on macOS"
 groups = ["default"]
 marker = "sys_platform == \"darwin\" and python_version == \"3.14\""
 dependencies = [
-    "pyobjc-core>=12.2",
-    "pyobjc-framework-Cocoa>=12.2",
+    "pyobjc-core>=12.2.1",
+    "pyobjc-framework-Cocoa>=12.2.1",
 ]
 files = [
-    {file = "pyobjc_framework_webkit-12.2-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:6cba6e76e33c62369d0fa8cb4b83959db4c53888173cb3546a15cd998c8e8aec"},
-    {file = "pyobjc_framework_webkit-12.2-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:43a18df9a8d6b6f1f003a732eee0a0fcd01c2d31566be2b2ba8ee732c1a32cf9"},
-    {file = "pyobjc_framework_webkit-12.2.tar.gz", hash = "sha256:498353fe812006f7fe2829a679018fcff3ed2684aa31c08d8a8af929ee9283b6"},
+    {file = "pyobjc_framework_webkit-12.2.1-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:67030258c3cd66e8495ccfccef3d2d58010ff0209284c5115e5afdb0e9fd6de1"},
+    {file = "pyobjc_framework_webkit-12.2.1-cp314-cp314t-macosx_10_15_universal2.whl", hash = "sha256:5d91527c9950c79269dd0d70f2bb8668c298dd06930637c1c063ce5f274a87e5"},
+    {file = "pyobjc_framework_webkit-12.2.1.tar.gz", hash = "sha256:a56acae55b50d549b20dff2921ad1099add8fbc377d0de09ddc2ba50957f7def"},
 ]
 
 [[package]]
 name = "pytest"
-version = "9.0.3"
+version = "9.1.1"
 requires_python = ">=3.10"
 summary = "pytest: simple powerful testing with Python"
 groups = ["dev"]
@@ -267,8 +267,8 @@ dependencies = [
     "tomli>=1; python_version < \"3.11\"",
 ]
 files = [
-    {file = "pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9"},
-    {file = "pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c"},
+    {file = "pytest-9.1.1-py3-none-any.whl", hash = "sha256:37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"},
+    {file = "pytest-9.1.1.tar.gz", hash = "sha256:1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313"},
 ]
 
 [[package]]
@@ -330,30 +330,30 @@ files = [
 
 [[package]]
 name = "ruff"
-version = "0.15.17"
+version = "0.15.19"
 requires_python = ">=3.7"
 summary = "An extremely fast Python linter and code formatter, written in Rust."
 groups = ["dev"]
 marker = "python_version == \"3.14\""
 files = [
-    {file = "ruff-0.15.17-py3-none-linux_armv6l.whl", hash = "sha256:d9feddb927fc68bd295f5eebc587a7e42cfaf9b65f60ca4a2386febff575da8f"},
-    {file = "ruff-0.15.17-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:25805a226d741c47d274a35ad5c10a7dde175fcddfa511d7cf3da0a21eb3eab7"},
-    {file = "ruff-0.15.17-py3-none-macosx_11_0_arm64.whl", hash = "sha256:f6ad73b14c2d18a3bf8ad7cb6974294d7f613a7898604826058e6ac64918ef4d"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:6ba0c1e4f95bcb3869d0d30cbd5917071ef2e28665abfec970cdab0492c713ed"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:81647960f10bff57d2e51cadd0c3950fe598400c852863a038720ef5b8cca91e"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0e01a84ddbc8c16c23055ba3924476850f1bbc1917cebbb9376665a63e74260d"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:84fe9f653152f8f294f9f7e03bf3a453d8b4a27f7a59c78c8666167f2b17b96c"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:8c0fe88a7676e7a05b73174d4d4a59cb2ac21ff8263583f87a81a6018475a978"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ecfc3c7878fff94633ab0348524e093f9ce3243080416dd7d14f8ba400174719"},
-    {file = "ruff-0.15.17-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:b8461180b22420b1bdc289909410930761629fddf2a5aaf60fae1ab26cedc4c4"},
-    {file = "ruff-0.15.17-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:6eccbe50a038b503e7140b441aa9c7fc8c1f36edf23ebef9f4165c2f28f568b7"},
-    {file = "ruff-0.15.17-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:382fc0521025f5a8ad447d8bdd523545d0d7646adb718eb1c2dac5065ec27c0f"},
-    {file = "ruff-0.15.17-py3-none-musllinux_1_2_i686.whl", hash = "sha256:456d41fcd1b2777ad63f09a6e7121d43f7b688bbc76a800c10f7f8fb1f912c3f"},
-    {file = "ruff-0.15.17-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:b1a04bcc94ae6194e9db05d16ad31f298a7194bfbcb08258bbe589cee1d587b8"},
-    {file = "ruff-0.15.17-py3-none-win32.whl", hash = "sha256:596065960ab1ff593f744220c9fe6580eda00a95003cffa9f4048bb5b1bf0392"},
-    {file = "ruff-0.15.17-py3-none-win_amd64.whl", hash = "sha256:6769e5fa1710b179b92e0bfa5a51735b35baea9013dadb06d5f44cbcf9547084"},
-    {file = "ruff-0.15.17-py3-none-win_arm64.whl", hash = "sha256:f3be1fbb34bcdfd146240d8fb92a709d4c2c8191348580a3c044ec60fa0b4456"},
-    {file = "ruff-0.15.17.tar.gz", hash = "sha256:2ec446937fd16c8c4de2674a209cc5af64d9c6f17d21fbf1151054fa0bcf5219"},
+    {file = "ruff-0.15.19-py3-none-linux_armv6l.whl", hash = "sha256:922d1eb283161564759bd49f507e91dc6112c15da8bd5b84ed714e086243cf86"},
+    {file = "ruff-0.15.19-py3-none-macosx_10_12_x86_64.whl", hash = "sha256:4d190d8f62a0b94aba8f721116538a9ee29b1e74d26650846ba9b99f0ae21c40"},
+    {file = "ruff-0.15.19-py3-none-macosx_11_0_arm64.whl", hash = "sha256:5a2c86ba6870dd415a9d9eb8be94d7924ebec6a26ffc7958ec7ca29d4bff967d"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:82b432bc087264aea70fd25ac198918b70bd9e2aa0db4297b0bb91bbfbbc63ce"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:8530a09d03b3a8c994f8b559a7dcdabc690bcd3f78ef276c38c83166798ebf56"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:87bf21fb3875fe69f0eacc825411657e2e85589cce633c35c0adf1113649c62b"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f9b229cb3ef56ecc2c1c8ebeca64b7a7740ccaef40a9eb097e78dde5a8560b83"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:c6c754515be7b76afe6e7e62df7776709571bcfc1631183828afcf3bafa869e3"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:6a498f82e0f4d8904c4e0aea5139cdfac1f39d19a3c51d491292f63a36e83b2e"},
+    {file = "ruff-0.15.19-py3-none-manylinux_2_31_riscv64.whl", hash = "sha256:d48caa34488fb521fd0ef4aea2b0e8fe758298df044138f0d67b687a6a0d07ed"},
+    {file = "ruff-0.15.19-py3-none-musllinux_1_2_aarch64.whl", hash = "sha256:4171b6613effa9363cd46dd4f75bd1827b6d1b946b5e278ed0c600d305379445"},
+    {file = "ruff-0.15.19-py3-none-musllinux_1_2_armv7l.whl", hash = "sha256:27c15b2a241dd4d995557949a094fe78b8ad99122a38ccae1595849bcc947b3f"},
+    {file = "ruff-0.15.19-py3-none-musllinux_1_2_i686.whl", hash = "sha256:ed03b7862d68f0a8771d50ee129980cbf1b113f96e250b73954bc292f689e0bb"},
+    {file = "ruff-0.15.19-py3-none-musllinux_1_2_x86_64.whl", hash = "sha256:08143f0685ae278b30727ea72e90c61e5bd9c31b91aac4f5bb989538f73d24b8"},
+    {file = "ruff-0.15.19-py3-none-win32.whl", hash = "sha256:8f47f0f92952af2557212bb10cf3e695cd4cf28b2c6e42cdb18ec6c9ebfa19da"},
+    {file = "ruff-0.15.19-py3-none-win_amd64.whl", hash = "sha256:efeca47ee3f9d4a7162655a3b8e6ee4a878646044233978d4d2c1ff8cdd914f0"},
+    {file = "ruff-0.15.19-py3-none-win_arm64.whl", hash = "sha256:6c6b607466e47349332eb1d9be52fb1467423fc07c217341af41cd0f3f0573be"},
+    {file = "ruff-0.15.19.tar.gz", hash = "sha256:edc27f7172a93b32b102687009d6a588508815072141543ae603a8b9b0823063"},
 ]
 
 [[package]]
