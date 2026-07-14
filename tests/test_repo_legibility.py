@@ -105,7 +105,7 @@ def test_release_guidance_captures_tag_first_release_notes_flow() -> None:
         "Draft Release Notes",
         "git tag",
         "git push origin",
-        ".github/workflows/draft-release-notes.yml",
+        ".github/workflows/create-draft-release.yml",
         ".github/workflows/python-publish.yml",
         "PyPI",
     ]

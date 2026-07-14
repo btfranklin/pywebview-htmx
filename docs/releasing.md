@@ -32,7 +32,7 @@ git push origin v0.2.1
 
 ## Workflow Boundaries
 
-- `.github/workflows/draft-release-notes.yml` runs on pushed `v*.*.*` tags and
+- `.github/workflows/create-draft-release.yml` runs on pushed `v*.*.*` tags and
   drafts release notes with `btfranklin/release-notes-scribe`.
 - `.github/workflows/python-publish.yml` runs when a GitHub Release is
   published, builds with PDM, and publishes to PyPI through trusted publishing.

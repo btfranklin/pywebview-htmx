@@ -14,7 +14,7 @@ the user-facing package overview.
 - Manual feature showcase: [../app.py](../app.py)
 - Tests: [../tests/](../tests/)
 - CI workflow: [../.github/workflows/python-package.yml](../.github/workflows/python-package.yml)
-- Release notes workflow: [../.github/workflows/draft-release-notes.yml](../.github/workflows/draft-release-notes.yml)
+- Draft-release workflow: [../.github/workflows/create-draft-release.yml](../.github/workflows/create-draft-release.yml)
 - Release publishing workflow: [../.github/workflows/python-publish.yml](../.github/workflows/python-publish.yml)
 
 ## Agent Skill
