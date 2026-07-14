@@ -2,9 +2,9 @@ name: Python package
 
 on:
     push:
-        branches: ['main']
+        branches: ["main"]
     pull_request:
-        branches: ['main']
+        branches: ["main"]
 
 permissions:
     contents: read
@@ -15,7 +15,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                python-version: ['3.14']
+                python-version: ["3.14"]
 
         steps:
             - uses: actions/checkout@v6
