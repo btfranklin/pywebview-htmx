@@ -1,6 +1,7 @@
-# Pywebview Htmx Troubleshooting
+# pywebview-htmx Troubleshooting
 
-Use this file when the markup looks plausible but the interaction still fails.
+Use this file when consumer-app markup looks plausible but the interaction still
+fails. First confirm the declared, locked, and installed library versions agree.
 
 ## Nothing happens on click or submit
 

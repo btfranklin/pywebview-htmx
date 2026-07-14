@@ -1,6 +1,7 @@
-# Pywebview Htmx Patterns
+# pywebview-htmx Patterns
 
-Use this file when implementing or refactoring app code.
+Use this file when implementing or refactoring consumer-app code. Confirm the
+installed `pywebview-htmx` version supports a pattern before applying it.
 
 ## Basic button to result panel
 

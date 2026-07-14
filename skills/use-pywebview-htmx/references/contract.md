@@ -1,7 +1,13 @@
-# Pywebview Htmx Contract
+# pywebview-htmx Contract
 
-Use this file when you need the exact interaction model without reopening the full
-library sources.
+Use this file for quick recall after checking the consuming application's
+declared and installed `pywebview-htmx` versions. If this reference differs from
+the installed package, follow the installed package's public API and runtime.
+Do not infer a feature history from version numbers; inspect version-matched
+artifacts before making compatibility claims. When declared, locked, and active
+versions disagree, resolve which environment runs the app before applying this
+contract. Cite the inspected artifact for version-sensitive conclusions; without
+one, limit the response to uncertainty and diagnostic steps.
 
 ## Mental model
 

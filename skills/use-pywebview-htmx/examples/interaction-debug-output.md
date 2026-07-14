@@ -1,36 +1,76 @@
-# Pywebview Htmx Interaction Output Example
+# Worked Example: Repairing a Search Form
 
-Use this shape when implementing or debugging a pywebview-htmx interaction. Keep
-the actual response tied to the user's app and files.
+The `inventory-desktop` application submitted its search form through the
+browser instead of calling Python. When the handler was invoked manually, it
+returned a dictionary that the runtime could not swap into `#search-results`.
 
-## Contract Check
+## Contract Verification
 
-- `py-call`: Python method exists on the exposed `js_api` object.
-- Handler return: HTML string fragment, with untrusted values escaped.
-- Params: valid `data-py-params` or named form fields for submit serialization.
+- `pyproject.toml` declared `pywebview-htmx>=0.3.1`.
+- `pdm.lock` and the active environment both resolved `0.3.1`.
+- The installed runtime supported submit serialization, `py-wait`, and HTML
+  fragment swaps.
+- No dependency change was needed.
 
-## Binding Changes
+## Diagnosis
 
-- Trigger: default `click` or explicit `py-trigger`.
-- Target: resolved `py-target`, or the triggering element when omitted.
-- Swap: `innerHTML`, `outerHTML`, or `append`, with the returned fragment shaped to match.
-- Wait state: `py-wait` target or fallback behavior.
-- Request policy: global config or per-trigger `py-policy`, noting any shared target state.
+In `templates/search.html`, the form omitted `py-trigger="submit"`, and the
+query input had no `name`. In `inventory/api.py`, `search_inventory()` returned
+structured data rather than an HTML string. Those three contract mismatches
+accounted for the browser submission, empty params, and `py:error` event.
 
-## Handler Changes
+## Application Changes
 
-- Python method signature and expected `params`.
-- Escaping/sanitization used before returning markup.
-- Fragment shape and preserved selectors or IDs for follow-up interactions.
+`templates/search.html`:
 
-## Dynamic Content
+```html
+<form
+  py-call="search_inventory"
+  py-trigger="submit"
+  py-target="#search-results"
+  py-wait="#search-status">
+  <label>
+    Search inventory
+    <input name="query" type="search" required>
+  </label>
+  <button type="submit">Search</button>
+</form>
+<p id="search-status" aria-live="polite">Ready</p>
+<section id="search-results" aria-live="polite"></section>
+```
 
-- Normal pywebview-htmx swaps re-process returned fragments automatically.
-- Manual DOM insertion calls `window.pywebviewHtmx.process(root)`.
+`inventory/api.py`:
 
-## Validation Steps
+```python
+from html import escape
 
-1. Open the local app through the project run command.
-2. Trigger the interaction and inspect the swapped DOM.
-3. Check console events such as `py:error`, `py:ignored`, `py:beforeSwap`, and `py:afterSwap`.
-4. Confirm loading and concurrency behavior for repeated clicks or shared targets.
+
+class InventoryAPI:
+    def search_inventory(self, params: dict[str, object]) -> str:
+        query = str(params.get("query", "")).strip()
+        if not query:
+            return '<p class="error">Enter a search term.</p>'
+
+        matches = self.inventory.search(query)
+        rows = "".join(
+            f"<li>{escape(item.name)} — {item.quantity}</li>"
+            for item in matches
+        )
+        if not rows:
+            return f"<p>No inventory matched <strong>{escape(query)}</strong>.</p>"
+        return f"<ul>{rows}</ul>"
+```
+
+The handler now accepts the runtime's params dictionary, escapes application
+data before interpolation, and returns a fragment shaped for the default
+`innerHTML` swap.
+
+## Validation
+
+- `pdm run test`: 42 tests passed.
+- `pdm run python app.py`: the form called `search_inventory` without browser
+  navigation and replaced `#search-results`.
+- The handler test for an empty query returned the validation fragment; a manual
+  query containing `<` rendered as text rather than markup.
+- Repeated submissions cleared the waiting state correctly, and the console
+  emitted no `py:error` events.
