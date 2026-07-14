@@ -17,8 +17,9 @@ methods through `window.pywebview.api`, and those methods return HTML fragments.
   shared component tokens and each selectable theme adds overrides.
 - The demo app in [../app.py](../app.py) is a manual runtime showcase, not a
   second framework surface. Keep it useful for inspecting interaction behavior.
-- Tests in [../tests/](../tests/) guard Python helpers, runtime contract
-  fragments, theme behavior, and repository legibility.
+- Tests in [../tests/](../tests/) guard Python helpers, exercise runtime
+  behavior in headless Chromium, and verify theme behavior and repository
+  legibility.
 - The installable skill in
   [../skills/use-pywebview-htmx/](../skills/use-pywebview-htmx/) is the
   agent-facing usage workflow.
@@ -46,9 +47,18 @@ same pass when each surface is affected.
   named field values over static params.
 - `py-target` selects the swap target. If omitted, the triggering element is
   updated.
-- Request state is scoped to the resolved `py-target` when present, and to the
-  triggering element otherwise. Shared wait targets keep a separate in-flight
-  count for `.py-waiting`.
+- A nonempty `py-target` scopes request state by its normalized selector string,
+  so state survives replacement of the matching node; self-targeted controls
+  scope state to the triggering element. Selector state exists only while
+  requests are in flight.
+- `py-wait` and runtime defaults are resolved for each accepted request. Shared
+  wait elements keep a separate in-flight count for `.py-waiting`.
+- Native navigation, submission, and reset defaults are prevented when the
+  runtime handles those destructive actions. Checkbox, radio, label, and
+  ordinary button defaults remain intact.
+- Lifecycle events are observational and non-cancelable. `py:error` always
+  identifies stale request failures through `detail.stale`.
+- Bundled component styling uses only the canonical `.pyh-*` class surface.
 - `py-swap="outerHTML"` replacements must preserve any selector or `id` that
   future interactions still target.
 - Swapped content is re-processed automatically. Manual DOM insertion still

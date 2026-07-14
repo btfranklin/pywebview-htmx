@@ -80,12 +80,14 @@ The skill includes:
 ## Quick Start
 
 ```python
+from html import escape
+
 from pywebview_htmx import create_window
 
 
 class API:
     def greeting(self, params: dict) -> str:
-        name = params.get("name", "world")
+        name = escape(str(params.get("name", "world")))
         return f"<p>Hello, {name}!</p>"
 
 
@@ -189,6 +191,12 @@ DOM event name to bind. Default is `click`.
 <div py-call="show_tip" py-trigger="mouseenter">...</div>
 ```
 
+When the runtime handles a native action that would leave or destructively
+change the current document, it prevents that default action. This includes
+form submission, link navigation, and submit/reset controls associated with a
+form. Ordinary buttons and the native state changes of checkboxes, radio
+buttons, and labels are preserved.
+
 ### `data-py-params` (optional)
 
 JSON payload passed to Python method.
@@ -221,6 +229,8 @@ Unknown value falls back to `innerHTML`.
 
 CSS selector of element receiving `.py-waiting` while request is in flight.
 If missing, empty, invalid, or unresolvable, the triggering element is used.
+The selector is resolved when each accepted request starts, so replacement
+markup can provide the wait target for later requests.
 
 ### `py-policy` (optional)
 
@@ -238,6 +248,11 @@ Per-element concurrency override. If omitted, the global
 - `swapDelay` (ms, default: `0`)
 - `settleDelay` (ms, default: `20`)
 - `requestPolicy` (`"latest-wins"` default, or `"drop"`)
+
+Runtime defaults are read for each accepted request. An element's explicit
+`py-swap` continues to override `defaultSwapStyle`; otherwise, changing
+`defaultSwapStyle` affects its next request even when the element is already
+bound.
 
 Example:
 
@@ -257,21 +272,35 @@ window.pywebviewHtmx.config.settleDelay = 50;
 - `py:ignored` (when `requestPolicy="drop"` and request is in flight)
 - `py:error`
 
+These lifecycle events are observational and non-cancelable. Calling
+`preventDefault()` on them does not change request or swap behavior. Every
+`py:error` event includes `event.detail.stale`, a boolean indicating whether a
+newer request had already been issued in the same request scope when the error
+was emitted. Errors from stale requests remain observable even though stale
+successful responses do not update the DOM.
+
 Example:
 
 ```js
 document.body.addEventListener("py:error", (event) => {
-  console.error("pywebview-htmx error", event.detail.error);
+  console.error("pywebview-htmx error", {
+    error: event.detail.error,
+    stale: event.detail.stale,
+  });
 });
 ```
 
 ## Concurrency Behavior
 
-`pywebview-htmx` tracks request state by resolved target. Controls that share
-the same `py-target` coordinate request ordering and `drop` behavior. Controls
+For a nonempty `py-target`, `pywebview-htmx` scopes request state by its
+normalized selector string. Controls with the same selector coordinate request
+ordering and `drop` behavior even when a swap replaces the matching DOM node.
+Selector state is discarded after its in-flight requests finish. Controls
 without `py-target` use the triggering element as their request state scope.
-Loading state is counted separately per resolved `py-wait` target so shared
-spinners stay active until all in-flight requests finish.
+
+The `py-wait` selector is resolved for each accepted request. Loading state is
+counted separately per resolved wait element, so a shared spinner stays active
+until every request using that particular element finishes.
 
 ### `latest-wins` (default)
 
@@ -306,10 +335,7 @@ Set `theme=None` to disable automatic theme injection.
 
 ### Built-in Component Classes
 
-The bundled CSS supports both `pyh-*` classes and compatibility aliases used by
-the demo (`.hero`, `.demo-card`, `.btn`, etc.).
-
-Recommended canonical classes:
+The bundled CSS exposes canonical `pyh-*` component classes:
 
 - Layout: `.pyh-shell`, `.pyh-hero`, `.pyh-grid`, `.pyh-card`
 - Controls: `.pyh-btn`, `.pyh-btn-primary`, `.pyh-btn-secondary`, `.pyh-btn-ghost`, `.pyh-btn-danger`

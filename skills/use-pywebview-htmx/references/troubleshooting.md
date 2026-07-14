@@ -19,9 +19,13 @@ Inspect the browser console and listen for the event:
 
 ```js
 document.body.addEventListener("py:error", (event) => {
-  console.error(event.detail.error);
+  console.error(event.detail.error, { stale: event.detail.stale });
 });
 ```
+
+`py:error` is observational and non-cancelable. Its required boolean
+`detail.stale` is `true` when a newer request was issued in the same scope
+before the failure. Stale request failures are still emitted.
 
 Common causes:
 
@@ -69,6 +73,8 @@ Remember:
 
 - `latest-wins` lets requests race but ignores stale responses
 - `drop` ignores new triggers while the current request is in flight
+- controls with the same nonempty `py-target` selector coordinate even if the
+  matching node is replaced
 
 ## Loading state looks wrong
 
@@ -78,3 +84,5 @@ Remember:
   as fallback
 - shared wait targets stay waiting until all in-flight requests using that target
   have settled
+- `py-wait` is resolved for each accepted request, so confirm replacement markup
+  still provides the intended wait element

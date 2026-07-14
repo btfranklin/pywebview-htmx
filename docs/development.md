@@ -3,6 +3,7 @@
 ## Setup And Validation
 
 - Install dependencies: `pdm install`
+- Install the Chromium test browser: `pdm run install-browser`
 - Lint: `pdm run lint`
 - Test: `pdm run test`
 - Run the manual demo: `pdm run python app.py`
@@ -11,6 +12,11 @@ Use PDM for dependency and environment management. Do not use pip to add,
 remove, or manage project packages. The GitHub Actions bootstrap may install PDM
 into a runner, but project dependencies belong in `pyproject.toml` and
 `pdm.lock`.
+
+The runtime behavior suite uses real headless Chromium through Playwright.
+Browser tests fail rather than skip when Chromium is unavailable, so run the
+browser-install command after initial setup and whenever Playwright reports a
+missing executable.
 
 ## Package Policy
 

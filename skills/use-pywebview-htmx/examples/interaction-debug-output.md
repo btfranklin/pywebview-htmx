@@ -74,3 +74,5 @@ data before interpolation, and returns a fragment shaped for the default
   query containing `<` rendered as text rather than markup.
 - Repeated submissions cleared the waiting state correctly, and the console
   emitted no `py:error` events.
+- The submit action did not navigate or reload the document; the runtime
+  prevented the native submission while handling the declarative call.

@@ -45,7 +45,11 @@ class API:
         buttons_html = []
         for theme_name in self._available_themes:
             theme_payload = self._json_attr({"theme": theme_name})
-            button_class = "btn btn-primary" if theme_name == active_theme else "btn btn-ghost"
+            button_class = (
+                "pyh-btn pyh-btn-primary"
+                if theme_name == active_theme
+                else "pyh-btn pyh-btn-ghost"
+            )
             buttons_html.append(
                 dedent(
                     f"""
@@ -65,18 +69,18 @@ class API:
         buttons_markup = "\n".join(buttons_html)
         return dedent(
             f"""
-            <section id="theme-picker" class="demo-card">
+            <section id="theme-picker" class="pyh-card">
               <style data-pywebview-theme="{active_theme}">{css}</style>
               <h2>Theme Picker (Python-backed)</h2>
-              <p class="muted">
+              <p class="pyh-muted">
                 These buttons call Python and swap this entire section. The returned
                 HTML includes a new <code>&lt;style data-pywebview-theme=...&gt;</code>
                 block, so the live UI theme changes immediately.
               </p>
-              <div class="button-row">
+              <div class="pyh-row">
                 {buttons_markup}
               </div>
-              <p class="muted">
+              <p class="pyh-muted">
                 Active theme from Python response:
                 <strong>{active_theme}</strong>
               </p>
@@ -96,11 +100,11 @@ class API:
         role = html_escape(str(params.get("role", "guest")))
         return dedent(
             f"""
-            <article class="result-card">
+            <article class="pyh-result">
               <h4>Profile Lookup Complete</h4>
               <p><strong>User:</strong> {user_id}</p>
               <p><strong>Role:</strong> {role}</p>
-              <p class="muted">Fetched at {self._stamp()}</p>
+              <p class="pyh-muted">Fetched at {self._stamp()}</p>
             </article>
             """
         ).strip()
@@ -111,20 +115,20 @@ class API:
             self._activity_id += 1
             activity_id = self._activity_id
         return (
-            f"<li class=\"activity-row\">"
-            f"<span class=\"chip\">#{activity_id}</span>"
+            f"<li class=\"pyh-activity-row\">"
+            f"<span class=\"pyh-chip\">#{activity_id}</span>"
             f"<span>{source}</span>"
-            f"<span class=\"muted\">{self._stamp()}</span>"
+            f"<span class=\"pyh-muted\">{self._stamp()}</span>"
             f"</li>"
         )
 
     def clear_activity(self, params: dict[str, object]) -> str:
         _ = params
-        return '<li class="muted">Activity log cleared. Add a new event.</li>'
+        return '<li class="pyh-muted">Activity log cleared. Add a new event.</li>'
 
     def replace_panel(self, params: dict[str, object]) -> str:
         tone = html_escape(str(params.get("tone", "teal")))
-        tone_class = "tone-amber" if tone == "amber" else "tone-teal"
+        tone_class = "pyh-tone-amber" if tone == "amber" else "pyh-tone-teal"
         next_tone = "teal" if tone == "amber" else "amber"
 
         with self._lock:
@@ -138,16 +142,16 @@ class API:
 
         return dedent(
             f"""
-            <section id="replaceable-card" class="demo-card {tone_class}">
+            <section id="replaceable-card" class="pyh-card {tone_class}">
               <h3>OuterHTML Replacement</h3>
               <p>
                 This whole card was replaced using
                 <code>py-swap="outerHTML"</code>.
               </p>
-              <p class="muted">Panel version: {panel_version}</p>
-              <div class="button-row">
+              <p class="pyh-muted">Panel version: {panel_version}</p>
+              <div class="pyh-row">
                 <button
-                  class="btn btn-secondary"
+                  class="pyh-btn pyh-btn-secondary"
                   py-call="replace_panel"
                   py-target="#replaceable-card"
                   py-swap="outerHTML"
@@ -155,7 +159,7 @@ class API:
                   Replace Again
                 </button>
                 <button
-                  class="btn btn-ghost"
+                  class="pyh-btn pyh-btn-ghost"
                   py-call="nested_ping"
                   py-target="#replaceable-log"
                   data-py-params="{ping_params}">
@@ -170,7 +174,7 @@ class API:
         scope = html_escape(str(params.get("scope", "unknown-scope")))
         version = html_escape(str(params.get("version", "n/a")))
         return (
-            '<p class="result-note">'
+            '<p class="pyh-note">'
             f"Nested callback from <strong>{scope}</strong> "
             f"(v{version}) at {self._stamp()}"
             "</p>"
@@ -189,7 +193,7 @@ class API:
         return dedent(
             f"""
             <button
-              class="btn btn-primary full-width"
+              class="pyh-btn pyh-btn-primary pyh-full-width"
               py-call="morph_button"
               py-swap="outerHTML"
               py-wait=""
@@ -204,18 +208,18 @@ class API:
         mood = html_escape(str(params.get("mood", "neutral")))
         return dedent(
             f"""
-            <article class="result-card">
+            <article class="pyh-result">
               <h4>Form Submit Trigger</h4>
               <p><strong>Mood:</strong> {mood}</p>
               <p><strong>Message:</strong> {message}</p>
-              <p class="muted">Received at {self._stamp()}</p>
+              <p class="pyh-muted">Received at {self._stamp()}</p>
             </article>
             """
         ).strip()
 
     def show_params(self, params: dict[str, object]) -> str:
         payload = html_escape(json.dumps(params, indent=2, sort_keys=True))
-        return f'<pre class="code-block">{payload}</pre>'
+        return f'<pre class="pyh-code">{payload}</pre>'
 
     def long_task(self, params: dict[str, object]) -> str:
         name = html_escape(str(params.get("name", "task")))
@@ -228,13 +232,13 @@ class API:
         time.sleep(delay)
         return dedent(
             f"""
-            <article class="result-card">
+            <article class="pyh-result">
               <h4>Concurrency Demo</h4>
               <p>
                 <strong>{name}</strong> completed in
                 <strong>{delay:.1f}s</strong>.
               </p>
-              <p class="muted">Completed at {self._stamp()}</p>
+              <p class="pyh-muted">Completed at {self._stamp()}</p>
             </article>
             """
         ).strip()
@@ -245,22 +249,22 @@ class API:
         add_params = self._json_attr({"source": "fragment-button"})
         return dedent(
             f"""
-            <article class="result-card fragment-{theme}">
+            <article class="pyh-result fragment-{theme}">
               <h4>Dynamically Inserted Fragment</h4>
               <p>
                 These buttons did not exist on first load. They work because
                 PyWebview HTMX re-processes swapped content.
               </p>
-              <div class="button-row">
+              <div class="pyh-row">
                 <button
-                  class="btn btn-ghost"
+                  class="pyh-btn pyh-btn-ghost"
                   py-call="nested_ping"
                   py-target="#fragment-log"
                   data-py-params="{ping_params}">
                   Fragment Ping
                 </button>
                 <button
-                  class="btn btn-secondary"
+                  class="pyh-btn pyh-btn-secondary"
                   py-call="add_activity"
                   py-target="#activity-list"
                   py-swap="append"
@@ -275,7 +279,7 @@ class API:
     def hover_tip(self, params: dict[str, object]) -> str:
         topic = html_escape(str(params.get("topic", "hover")))
         return (
-            '<p class="result-note">'
+            '<p class="pyh-note">'
             f"Triggered by <strong>{topic}</strong> at {self._stamp()}"
             "</p>"
         )
@@ -294,8 +298,8 @@ html_content = """
   <title>PyWebview HTMX Feature Showcase</title>
 </head>
 <body>
-  <main class="app-shell">
-    <header class="hero">
+  <main class="pyh-shell">
+    <header class="pyh-hero">
       <h1>PyWebview HTMX Feature Showcase</h1>
       <p>
         This demo intentionally exercises many PyWebview HTMX capabilities: trigger types,
@@ -303,42 +307,42 @@ html_content = """
         <code>append</code>, <code>outerHTML</code>), wait targets,
         concurrency policy, lifecycle events, and re-processing swapped fragments.
       </p>
-      <div class="badge-row">
-        <span class="chip">Live theme switch uses a Python API call</span>
-        <span class="chip">Theme CSS is shipped in the PyWebview HTMX package</span>
-        <span class="chip">Styling system: CSS tokens</span>
-        <span class="chip">Reusable components: card, button, field</span>
-        <span class="chip">Utilities: grid, spacing, full-width</span>
+      <div class="pyh-badge-row">
+        <span class="pyh-chip">Live theme switch uses a Python API call</span>
+        <span class="pyh-chip">Theme CSS is shipped in the PyWebview HTMX package</span>
+        <span class="pyh-chip">Styling system: CSS tokens</span>
+        <span class="pyh-chip">Reusable components: card, button, field</span>
+        <span class="pyh-chip">Utilities: grid, spacing, full-width</span>
       </div>
     </header>
 
     __THEME_PICKER__
 
-    <section class="demo-card">
+    <section class="pyh-card">
       <h2>Runtime Controls + Event Feed</h2>
-      <p class="muted">
+      <p class="pyh-muted">
         Toggle request behavior and timing live. Event logs show
         <code>py:trigger</code>, <code>py:beforeSwap</code>,
         <code>py:afterSwap</code>, <code>py:ignored</code>, and
         <code>py:error</code>.
       </p>
-      <div class="inline-config">
+      <div class="pyh-inline-config">
         <label><input type="radio" name="policy" value="latest-wins" checked>latest-wins</label>
         <label><input type="radio" name="policy" value="drop">drop while in-flight</label>
         <label>swapDelay <input id="swap-delay" type="range" min="0" max="900" step="100" value="0"></label>
         <label>settleDelay <input id="settle-delay" type="range" min="0" max="600" step="100" value="20"></label>
       </div>
-      <p id="config-state" class="muted">config state pending...</p>
-      <ol id="event-log" class="event-log"></ol>
+      <p id="config-state" class="pyh-muted">config state pending...</p>
+      <ol id="event-log" class="pyh-event-log"></ol>
     </section>
 
-    <div class="grid">
-      <section class="demo-card">
+    <div class="pyh-grid">
+      <section class="pyh-card">
         <h3>1) Basic call + wait target + innerHTML</h3>
-        <p class="muted">Uses <code>py-call</code>, <code>py-target</code>, <code>data-py-params</code>, and <code>py-wait</code>.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Uses <code>py-call</code>, <code>py-target</code>, <code>data-py-params</code>, and <code>py-wait</code>.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-primary"
+            class="pyh-btn pyh-btn-primary"
             py-call="fetch_profile"
             py-target="#profile-result"
             py-swap="innerHTML"
@@ -346,17 +350,17 @@ html_content = """
             py-wait="#profile-wait">
             Fetch Profile
           </button>
-          <span id="profile-wait" class="wait-target"><span class="busy-pill"></span>loading</span>
+          <span id="profile-wait" class="pyh-wait-target"><span class="pyh-busy-pill"></span>loading</span>
         </div>
-        <div id="profile-result" class="result-note muted">Result appears here.</div>
+        <div id="profile-result" class="pyh-note pyh-muted">Result appears here.</div>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>2) Append swap strategy</h3>
-        <p class="muted">Adds list rows with <code>py-swap="append"</code>.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Adds list rows with <code>py-swap="append"</code>.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-secondary"
+            class="pyh-btn pyh-btn-secondary"
             py-call="add_activity"
             py-target="#activity-list"
             py-swap="append"
@@ -364,7 +368,7 @@ html_content = """
             Append Activity
           </button>
           <button
-            class="btn btn-danger"
+            class="pyh-btn pyh-btn-danger"
             py-call="clear_activity"
             py-target="#activity-list"
             py-swap="innerHTML"
@@ -372,17 +376,17 @@ html_content = """
             Clear
           </button>
         </div>
-        <ul id="activity-list" class="activity-list">
-          <li class="muted">No activity yet.</li>
+        <ul id="activity-list" class="pyh-activity-list">
+          <li class="pyh-muted">No activity yet.</li>
         </ul>
       </section>
 
-      <section id="replaceable-card" class="demo-card tone-teal">
+      <section id="replaceable-card" class="pyh-card pyh-tone-teal">
         <h3>3) OuterHTML swap strategy</h3>
-        <p class="muted">Replaces the entire card with a new version.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Replaces the entire card with a new version.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-secondary"
+            class="pyh-btn pyh-btn-secondary"
             py-call="replace_panel"
             py-target="#replaceable-card"
             py-swap="outerHTML"
@@ -390,7 +394,7 @@ html_content = """
             Replace Panel
           </button>
           <button
-            class="btn btn-ghost"
+            class="pyh-btn pyh-btn-ghost"
             py-call="nested_ping"
             py-target="#replaceable-log"
             data-py-params='{"scope": "initial-outer-panel", "version": 0}'>
@@ -399,11 +403,11 @@ html_content = """
         </div>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>4) Self-target fallback (no py-target)</h3>
-        <p class="muted">This button swaps itself with <code>py-swap="outerHTML"</code>.</p>
+        <p class="pyh-muted">This button swaps itself with <code>py-swap="outerHTML"</code>.</p>
         <button
-          class="btn btn-primary full-width"
+          class="pyh-btn pyh-btn-primary pyh-full-width"
           py-call="morph_button"
           py-swap="outerHTML"
           py-wait=""
@@ -412,12 +416,12 @@ html_content = """
         </button>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>5) Custom trigger: form submit</h3>
-        <p class="muted">The form uses <code>py-trigger="submit"</code> and PyWebview HTMX serializes named fields automatically.</p>
+        <p class="pyh-muted">The form uses <code>py-trigger="submit"</code> and PyWebview HTMX serializes named fields automatically.</p>
         <form
           id="echo-form"
-          class="field-row"
+          class="pyh-fields"
           py-call="echo_message"
           py-trigger="submit"
           py-target="#echo-result"
@@ -428,39 +432,39 @@ html_content = """
             <option value="curious">curious</option>
             <option value="celebratory">celebratory</option>
           </select>
-          <button class="btn btn-primary" type="submit">Submit Form Trigger</button>
+          <button class="pyh-btn pyh-btn-primary" type="submit">Submit Form Trigger</button>
         </form>
-        <div id="echo-result" class="result-note muted">Form result appears here.</div>
+        <div id="echo-result" class="pyh-note pyh-muted">Form result appears here.</div>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>6) Params parsing behavior</h3>
-        <p class="muted">Second button has intentionally invalid JSON and should fallback to <code>{}</code>.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Second button has intentionally invalid JSON and should fallback to <code>{}</code>.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-secondary"
+            class="pyh-btn pyh-btn-secondary"
             py-call="show_params"
             py-target="#params-result"
             data-py-params='{"valid": true, "count": 3}'>
             Show Valid Params
           </button>
           <button
-            class="btn btn-danger"
+            class="pyh-btn pyh-btn-danger"
             py-call="show_params"
             py-target="#params-result"
             data-py-params='{"broken": true'>
             Show Invalid Params
           </button>
         </div>
-        <div id="params-result" class="result-note muted">Parameter payload appears here.</div>
+        <div id="params-result" class="pyh-note pyh-muted">Parameter payload appears here.</div>
       </section>
 
-      <section class="demo-card" id="race-card">
+      <section class="pyh-card" id="race-card">
         <h3>7) Concurrency policy demo</h3>
-        <p class="muted">Click slow then fast to see <code>latest-wins</code> vs <code>drop</code> behavior.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Click slow then fast to see <code>latest-wins</code> vs <code>drop</code> behavior.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-secondary"
+            class="pyh-btn pyh-btn-secondary"
             py-call="long_task"
             py-target="#race-result"
             py-wait="#race-status"
@@ -468,52 +472,52 @@ html_content = """
             Run Slow (1.6s)
           </button>
           <button
-            class="btn btn-primary"
+            class="pyh-btn pyh-btn-primary"
             py-call="long_task"
             py-target="#race-result"
             py-wait="#race-status"
             data-py-params='{"name": "fast-job", "delay": 0.4}'>
             Run Fast (0.4s)
           </button>
-          <span id="race-status" class="wait-target"><span class="busy-pill"></span>running</span>
+          <span id="race-status" class="pyh-wait-target"><span class="pyh-busy-pill"></span>running</span>
         </div>
-        <div id="race-result" class="result-note muted">Race result appears here.</div>
+        <div id="race-result" class="pyh-note pyh-muted">Race result appears here.</div>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>8) Dynamic fragment re-processing</h3>
-        <p class="muted">Loads new buttons at runtime; they work immediately.</p>
-        <div class="button-row">
+        <p class="pyh-muted">Loads new buttons at runtime; they work immediately.</p>
+        <div class="pyh-row">
           <button
-            class="btn btn-ghost"
+            class="pyh-btn pyh-btn-ghost"
             py-call="load_fragment"
             py-target="#fragment-host"
             data-py-params='{"theme": "mint"}'>
             Load Fragment
           </button>
         </div>
-        <div id="fragment-host" class="result-note muted">Fragment goes here.</div>
-        <div id="fragment-log" class="result-note muted">Fragment callback log.</div>
+        <div id="fragment-host" class="pyh-note pyh-muted">Fragment goes here.</div>
+        <div id="fragment-log" class="pyh-note pyh-muted">Fragment callback log.</div>
       </section>
 
-      <section class="demo-card">
+      <section class="pyh-card">
         <h3>9) Custom trigger: mouseenter</h3>
-        <p class="muted">Hover the dashed box to trigger a non-click event.</p>
+        <p class="pyh-muted">Hover the dashed box to trigger a non-click event.</p>
         <div
-          class="hover-target"
+          class="pyh-hover-target"
           py-call="hover_tip"
           py-trigger="mouseenter"
           py-target="#hover-result"
           data-py-params='{"topic": "mouse-enter trigger"}'>
           Hover this box
         </div>
-        <div id="hover-result" class="result-note muted">Hover result appears here.</div>
+        <div id="hover-result" class="pyh-note pyh-muted">Hover result appears here.</div>
       </section>
     </div>
 
-    <section class="demo-card">
+    <section class="pyh-card">
       <h3>OuterHTML nested callback log</h3>
-      <div id="replaceable-log" class="result-note muted">Outer panel callback log.</div>
+      <div id="replaceable-log" class="pyh-note pyh-muted">Outer panel callback log.</div>
     </section>
   </main>
 
@@ -577,9 +581,9 @@ html_content = """
 
             let tone = "";
             if (eventName === "py:error") {
-              tone = "error";
+              tone = "pyh-error";
             } else if (eventName === "py:ignored") {
-              tone = "warn";
+              tone = "pyh-warn";
             }
 
             pushEvent(

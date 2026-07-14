@@ -7,7 +7,8 @@
     settleDelay: 20,
     requestPolicy: "latest-wins",
   };
-  const requestState = new WeakMap();
+  const selfRequestState = new WeakMap();
+  const targetedRequestState = new Map();
   const waitState = new WeakMap();
 
   function $(selector, root = document) {
@@ -23,7 +24,7 @@
   function triggerEvent(target, eventName, detail = {}) {
     const event = new CustomEvent(eventName, {
       bubbles: true,
-      cancelable: true,
+      cancelable: false,
       detail,
     });
     target.dispatchEvent(event);
@@ -132,20 +133,21 @@
     return await func(params);
   }
 
-  function getRequestState(key) {
-    let state = requestState.get(key);
+  function getRequestScope(element, targetSelector) {
+    const key = targetSelector || element;
+    const store = targetSelector ? targetedRequestState : selfRequestState;
+    let state = store.get(key);
     if (!state) {
       state = { lastIssued: 0, inFlightCount: 0 };
-      requestState.set(key, state);
+      store.set(key, state);
     }
-    return state;
+    return { key, state, store };
   }
 
-  function getRequestStateKey(element, targetSelector) {
-    if (!targetSelector) {
-      return element;
+  function releaseRequestScope(scope) {
+    if (scope.state.inFlightCount === 0 && scope.store.get(scope.key) === scope.state) {
+      scope.store.delete(scope.key);
     }
-    return $(targetSelector) || element;
   }
 
   function addWaiting(waitTarget) {
@@ -164,8 +166,24 @@
     waitState.set(waitTarget, count);
   }
 
-  function shouldPreventDefault(eventName) {
-    return eventName === "submit";
+  function shouldPreventDefault(element, eventName) {
+    if (eventName === "submit") {
+      return true;
+    }
+    if (eventName !== "click") {
+      return false;
+    }
+
+    if ((element.tagName === "A" || element.tagName === "AREA") && element.hasAttribute("href")) {
+      return true;
+    }
+    if (element.tagName === "BUTTON" && element.form) {
+      return element.type !== "button";
+    }
+    if (element.tagName === "INPUT" && element.form) {
+      return ["image", "reset", "submit"].includes(element.type);
+    }
+    return false;
   }
 
   function getRequestPolicy(element) {
@@ -195,9 +213,7 @@
 
       const functionName = element.getAttribute("py-call");
       const eventName = element.getAttribute("py-trigger") || "click";
-      const targetSelector = element.getAttribute("py-target");
-      const swapStyle = element.getAttribute("py-swap") || config.defaultSwapStyle;
-      const waitTarget = getWaitTarget(element);
+      const targetSelector = (element.getAttribute("py-target") || "").trim() || null;
 
       if (!functionName) {
         console.warn("PyWebview HTMX: py-call is empty", element);
@@ -205,12 +221,13 @@
       }
 
       element.addEventListener(eventName, async (event) => {
-        if (shouldPreventDefault(eventName) && event.cancelable) {
+        if (shouldPreventDefault(element, eventName) && event.cancelable) {
           event.preventDefault();
         }
 
         const params = buildRequestParams(element, eventName, event);
-        const state = getRequestState(getRequestStateKey(element, targetSelector));
+        const scope = getRequestScope(element, targetSelector);
+        const state = scope.state;
         const requestPolicy = getRequestPolicy(element);
         if (requestPolicy === "drop" && state.inFlightCount > 0) {
           triggerEvent(element, "py:ignored", { reason: "in-flight" });
@@ -227,6 +244,8 @@
           requestId,
         });
 
+        const swapStyle = element.getAttribute("py-swap") || config.defaultSwapStyle;
+        const waitTarget = getWaitTarget(element);
         addWaiting(waitTarget);
 
         try {
@@ -265,9 +284,14 @@
           }
         } catch (error) {
           console.error("PyWebview HTMX: error calling Python function", error);
-          triggerEvent(element, "py:error", { error, requestId });
+          triggerEvent(element, "py:error", {
+            error,
+            requestId,
+            stale: requestId !== state.lastIssued,
+          });
         } finally {
           state.inFlightCount = Math.max(0, state.inFlightCount - 1);
+          releaseRequestScope(scope);
           removeWaiting(waitTarget);
         }
       });

@@ -46,6 +46,11 @@ If `py-target` is omitted, the triggering element is the target.
 If `py-wait` is missing, empty, invalid, or unresolved, the triggering element
 receives `.py-waiting`.
 
+When handling native link navigation, form submission, or a form-associated
+submit/reset control, the runtime prevents that destructive default action. It
+preserves the normal behavior of checkboxes, radio buttons, labels, and
+ordinary buttons.
+
 ## Params contract
 
 - Missing `data-py-params` becomes `{}`.
@@ -66,13 +71,17 @@ Available on `window.pywebviewHtmx.config`:
 - `settleDelay`
 - `requestPolicy`
 
-Global config is the default. `py-policy` overrides request behavior for a single
-element.
+Global config is the default. `py-policy` overrides request behavior for a
+single element. Runtime defaults and `py-wait` are resolved for each accepted
+request. An explicit `py-swap` overrides `defaultSwapStyle`; otherwise a config
+change applies to the element's next request even if it is already bound.
 
-Request state is scoped to the resolved `py-target` when present, and to the
-triggering element otherwise. Controls that target the same element coordinate
-`latest-wins` and `drop` behavior. Loading state is counted separately per
-resolved `py-wait` target.
+Request state is scoped to the normalized selector string for a nonempty
+`py-target`, and to the triggering element otherwise. Controls using the same
+selector coordinate `latest-wins` and `drop` behavior across replacement of the
+matching DOM node. Selector state is retained only while requests are in
+flight. Loading state is counted separately per wait element resolved for each
+accepted request.
 
 ## Events
 
@@ -82,7 +91,15 @@ resolved `py-wait` target.
 - `py:ignored`
 - `py:error`
 
-Use these for telemetry, debugging, and UX hooks.
+Use these for telemetry, debugging, and UX hooks. They are observational and
+non-cancelable. Every `py:error` includes a required boolean `detail.stale`;
+stale failures remain observable even though stale successful responses do not
+swap.
+
+## Component CSS
+
+Bundled component styling uses only canonical `.pyh-*` classes. Demo-style
+aliases such as `.btn` and `.demo-card` are not part of the public surface.
 
 ## Dynamic content
 

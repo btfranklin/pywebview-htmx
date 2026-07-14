@@ -60,6 +60,10 @@ Use the smallest declarative binding that fits the interaction.
   when the event is not the default click.
 - Choose `py-target`, `py-swap`, `py-wait`, and `py-policy` only after confirming
   the installed version supports the intended behavior.
+- Treat controls with the same nonempty `py-target` selector as one concurrency
+  scope even when the matching node is replaced.
+- Expect `py-wait` and global runtime defaults to be resolved for each accepted
+  request, not frozen when the element is first bound.
 - Use `py-swap="outerHTML"` only for a full replacement component.
 - Preserve the same outer selector or `id` on `outerHTML` replacements if later interactions still target that component.
 
@@ -86,7 +90,9 @@ need explicit processing.
 
 - When supported, call `window.pywebviewHtmx.process(root)` after inserting
   interactive nodes outside a normal pywebview-htmx swap.
-- Listen for `py:error`, `py:ignored`, `py:beforeSwap`, and `py:afterSwap` when debugging.
+- Listen for `py:error`, `py:ignored`, `py:beforeSwap`, and `py:afterSwap` when
+  debugging. These events are observational and non-cancelable; use
+  `py:error.detail.stale` to distinguish failures from superseded requests.
 - Run the consuming project's standard automated checks.
 - Launch the application and exercise the changed interaction, including
   repeated triggers, loading state, swap results, and follow-up controls when
@@ -101,6 +107,9 @@ Read [troubleshooting guidance](references/troubleshooting.md) for failure cases
 - Do not return structured data from Python handlers unless you convert it to HTML before returning.
 - Do not forget `name` attributes on form inputs you expect to serialize.
 - Do not mutate the DOM manually and assume the runtime will discover new `py-call` elements by itself.
+- Do not add custom default prevention for normal declarative links or form
+  submit/reset actions; supported runtimes prevent those destructive native
+  defaults while preserving checkbox, radio, label, and ordinary button behavior.
 
 ## References
 

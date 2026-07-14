@@ -96,7 +96,8 @@ window.pywebviewHtmx.config.requestPolicy = "drop";
 ```
 
 Use `py-policy` when one trigger needs different behavior. If multiple triggers
-share a resolved `py-target`, they also share request state:
+use the same nonempty `py-target` selector, they share request state even when
+an `outerHTML` swap replaces the matching element:
 
 ```html
 <button
@@ -106,6 +107,10 @@ share a resolved `py-target`, they also share request state:
   Run once
 </button>
 ```
+
+The runtime resolves `py-wait` and the effective default swap style when each
+accepted request starts. This allows replacement markup to supply a new wait
+element and makes runtime config changes apply to already-bound controls.
 
 ## Dynamic fragment insertion
 

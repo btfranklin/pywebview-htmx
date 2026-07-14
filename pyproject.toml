@@ -27,6 +27,21 @@ classifiers = [
 requires = ["pdm-backend>=2.4.9"]
 build-backend = "pdm.backend"
 
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "ruff>=0.15.19",
+    "playwright>=1.61.0",
+    "pytest-playwright>=0.8.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+
 [tool.pdm]
 distribution = true
 
@@ -37,19 +52,7 @@ source = "scm"
 package-dir = "src"
 includes = ["src/pywebview_htmx"]
 
-[dependency-groups]
-dev = [
-    "pytest>=9.1.1",
-    "ruff>=0.15.19",
-]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]
-
 [tool.pdm.scripts]
 test = "pytest"
 lint = "ruff check ."
-
-[tool.ruff.lint]
-select = ["E", "F", "W"]
+install-browser = "playwright install chromium"

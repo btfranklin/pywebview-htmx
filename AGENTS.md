@@ -28,6 +28,7 @@ Use this file as the fast route into the repository. Keep durable details in
 ## Validation
 
 - Install dependencies: `pdm install`
+- Install the Chromium test browser: `pdm run install-browser`
 - Lint: `pdm run lint`
 - Test: `pdm run test`
 - Run the demo: `pdm run python app.py`

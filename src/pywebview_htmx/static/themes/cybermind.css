@@ -79,14 +79,11 @@
 }
 
 .pyh-card,
-.demo-card,
-.pyh-hero,
-.hero {
+.pyh-hero {
   box-shadow: 10px 10px 20px #1a1b28, -10px -10px 20px #3c3f5c;
 }
 
-.pyh-btn,
-.btn {
+.pyh-btn {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   border-radius: 999px;
@@ -94,8 +91,7 @@
   box-shadow: 6px 6px 12px #1a1b28, -6px -6px 12px #3c3f5c;
 }
 
-.pyh-btn:hover,
-.btn:hover {
+.pyh-btn:hover {
   box-shadow: 4px 4px 10px #1a1b28, -4px -4px 10px #3c3f5c;
 }
 
@@ -103,11 +99,6 @@
 .pyh-card h2,
 .pyh-card h3,
 .pyh-card h4,
-.demo-card h1,
-.demo-card h2,
-.demo-card h3,
-.demo-card h4,
-.pyh-hero h1,
-.hero h1 {
+.pyh-hero h1 {
   letter-spacing: 0.06em;
 }

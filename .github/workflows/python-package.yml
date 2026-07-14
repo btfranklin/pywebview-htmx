@@ -30,6 +30,7 @@ jobs:
             - name: Install dependencies
               run: |
                   pdm install --group dev
+                  pdm run playwright install --with-deps chromium
             - name: Lint with ruff
               run: |
                   pdm run lint
