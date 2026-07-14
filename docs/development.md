@@ -9,9 +9,8 @@
 - Run the manual demo: `pdm run python app.py`
 
 Use PDM for dependency and environment management. Do not use pip to add,
-remove, or manage project packages. The GitHub Actions bootstrap may install PDM
-into a runner, but project dependencies belong in `pyproject.toml` and
-`pdm.lock`.
+remove, or manage project packages. GitHub Actions installs PDM with its
+official setup action and caches dependencies using `pdm.lock`.
 
 The runtime behavior suite uses real headless Chromium through Playwright.
 Browser tests fail rather than skip when Chromium is unavailable, so run the
