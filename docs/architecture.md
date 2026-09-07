@@ -58,6 +58,12 @@ same pass when each surface is affected.
   ordinary button defaults remain intact.
 - Lifecycle events are observational and non-cancelable. `py:error` always
   identifies stale request failures through `detail.stale`.
+  `detail.element` identifies the original control. Errors from detached controls
+  are dispatched on the document body, or the document if no body exists.
+- Selector targets are resolved again after the swap delay. Removed targets
+  are not updated.
+- Bound elements are tracked by identity in a `WeakSet`, so cloned controls can
+  be processed without copying binding state.
 - Bundled component styling uses only the canonical `.pyh-*` class surface.
 - `py-swap="outerHTML"` replacements must preserve any selector or `id` that
   future interactions still target.

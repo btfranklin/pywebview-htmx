@@ -279,6 +279,10 @@ newer request had already been issued in the same request scope when the error
 was emitted. Errors from stale requests remain observable even though stale
 successful responses do not update the DOM.
 
+`event.detail.element` identifies the original control. If that control has
+been removed, the runtime dispatches the error on `document.body` so application
+listeners can still receive it.
+
 Example:
 
 ```js

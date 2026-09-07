@@ -10,6 +10,7 @@
   const selfRequestState = new WeakMap();
   const targetedRequestState = new Map();
   const waitState = new WeakMap();
+  const boundElements = new WeakSet();
 
   function $(selector, root = document) {
     if (!selector) return null;
@@ -206,10 +207,9 @@
     elements.push(...root.querySelectorAll("[py-call]"));
 
     elements.forEach((element) => {
-      if (element.getAttribute("data-pywebview-bound") === "true") {
+      if (boundElements.has(element)) {
         return;
       }
-      element.setAttribute("data-pywebview-bound", "true");
 
       const functionName = element.getAttribute("py-call");
       const eventName = element.getAttribute("py-trigger") || "click";
@@ -219,6 +219,7 @@
         console.warn("PyWebview HTMX: py-call is empty", element);
         return;
       }
+      boundElements.add(element);
 
       element.addEventListener(eventName, async (event) => {
         if (shouldPreventDefault(element, eventName) && event.cancelable) {
@@ -257,7 +258,7 @@
             throw new Error("PyWebview HTMX: Python API methods must return an HTML string");
           }
 
-          const target = targetSelector ? $(targetSelector) : element;
+          let target = targetSelector ? $(targetSelector) : element;
           if (!target) {
             console.warn("PyWebview HTMX: target element not found", targetSelector);
             return;
@@ -268,6 +269,12 @@
             await delay(config.swapDelay);
           }
           if (requestId !== state.lastIssued) {
+            return;
+          }
+
+          target = targetSelector ? $(targetSelector) : element;
+          if (!target || !target.isConnected) {
+            console.warn("PyWebview HTMX: target element not found", targetSelector);
             return;
           }
 
@@ -284,7 +291,9 @@
           }
         } catch (error) {
           console.error("PyWebview HTMX: error calling Python function", error);
-          triggerEvent(element, "py:error", {
+          const errorTarget = element.isConnected ? element : document.body || document;
+          triggerEvent(errorTarget, "py:error", {
+            element,
             error,
             requestId,
             stale: requestId !== state.lastIssued,

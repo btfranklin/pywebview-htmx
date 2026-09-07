@@ -640,3 +640,135 @@ def test_invalid_params_and_selectors_degrade_safely(
     assert not page.locator("#invalid-wait").evaluate(
         "node => node.classList.contains('py-waiting')"
     )
+
+
+@pytest.mark.parametrize("remove_target", [False, True], ids=["replace", "remove"])
+def test_target_is_resolved_again_after_swap_delay(
+    runtime_browser: RuntimeBrowser, js_source: str, remove_target: bool,
+) -> None:
+    runtime_browser.load(
+        '<button id="load" py-call="load" py-target="#result">Load</button>'
+        '<div id="result">original</div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.evaluate(
+        """() => {
+          const originalTimeout = window.setTimeout;
+          window.setTimeout = (callback, ms, ...args) => {
+            if (ms === 1234) {
+              window.finishSwapDelay = callback;
+              return 0;
+            }
+            return originalTimeout(callback, ms, ...args);
+          };
+          pywebviewHtmx.config.swapDelay = 1234;
+          window.oldTarget = document.querySelector('#result');
+          window.afterSwaps = 0;
+          document.body.addEventListener('py:afterSwap', () => afterSwaps++);
+        }"""
+    )
+    page.locator("#load").click()
+    resolve_request(page, 0, "response")
+    page.wait_for_function("typeof window.finishSwapDelay === 'function'")
+    page.evaluate(
+        """remove => {
+          if (remove) oldTarget.remove();
+          else oldTarget.outerHTML = '<div id="result">replacement</div>';
+          finishSwapDelay();
+        }""",
+        remove_target,
+    )
+    page.wait_for_function(
+        "!document.querySelector('#load').classList.contains('py-waiting')"
+    )
+    assert page.evaluate("oldTarget.textContent") == "original"
+    assert page.evaluate("afterSwaps") == (0 if remove_target else 1)
+    if not remove_target:
+        assert page.locator("#result").inner_text() == "response"
+
+
+def test_detached_control_error_reaches_body_listener(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<section id="host"><button id="load" py-call="load" '
+        'py-target="#host" py-swap="outerHTML">Load</button></section>',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.evaluate(
+        """() => {
+          window.originalControl = document.querySelector('#load');
+          window.errors = [];
+          document.body.addEventListener('py:error', event => errors.push({
+            stale: event.detail.stale,
+            original: event.detail.element === originalControl,
+            message: event.detail.error.message,
+          }));
+        }"""
+    )
+    page.locator("#load").click()
+    page.locator("#load").click()
+    resolve_request(page, 1, '<section id="host">replaced</section>')
+    page.locator("#host").get_by_text("replaced").wait_for()
+    runtime_browser.expect_console_error("older failure")
+    reject_request(page, 0, "older failure")
+    page.wait_for_function("errors.length === 1")
+    assert page.evaluate("errors") == [
+        {"stale": True, "original": True, "message": "older failure"}
+    ]
+    assert page.evaluate("originalControl.classList.contains('py-waiting')") is False
+
+
+def test_cloned_controls_bind_once_when_processed_repeatedly(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<button id="load" py-call="load" py-target="#result">Load</button>'
+        '<div id="result"></div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.evaluate(
+        """() => {
+          const clone = document.querySelector('#load').cloneNode(true);
+          clone.id = 'clone';
+          document.body.append(clone);
+          pywebviewHtmx.process(clone);
+          pywebviewHtmx.process(document.body);
+          pywebviewHtmx.process(document.body);
+        }"""
+    )
+    page.locator("#clone").click()
+    assert page.evaluate("bridgeCalls.length") == 1
+    resolve_request(page, 0, "cloned")
+    page.locator("#result").get_by_text("cloned").wait_for()
+    page.locator("#load").click()
+    assert page.evaluate("bridgeCalls.length") == 2
+    resolve_request(page, 1, "original")
+    page.locator("#result").get_by_text("original").wait_for()
+
+
+def test_injected_runtime_binds_controls_on_document_load(
+    runtime_browser: RuntimeBrowser,
+) -> None:
+    from pywebview_htmx import inject_runtime
+
+    page = runtime_browser.page
+    page.set_content(inject_runtime(
+        '<!doctype html><html><body>'
+        '<button id="load" py-call="load" py-target="#result">Load</button>'
+        '<div id="result"></div></body></html>'
+    ))
+    install_pending_bridge(page)
+    page.locator("#load").click()
+    assert page.evaluate("bridgeCalls") == [{}]
+    resolve_request(page, 0, "ready")
+    page.locator("#result").get_by_text("ready").wait_for()

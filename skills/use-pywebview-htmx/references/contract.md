@@ -96,6 +96,9 @@ non-cancelable. Every `py:error` includes a required boolean `detail.stale`;
 stale failures remain observable even though stale successful responses do not
 swap.
 
+`detail.element` identifies the original control. If that control is detached,
+the error is dispatched on `document.body`, or the document if no body exists.
+
 ## Component CSS
 
 Bundled component styling uses only canonical `.pyh-*` classes. Demo-style
