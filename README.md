@@ -197,6 +197,9 @@ form submission, link navigation, and submit/reset controls associated with a
 form. Ordinary buttons and the native state changes of checkboxes, radio
 buttons, and labels are preserved.
 
+A label that contains its control calls Python once per activation. Clicking
+the label text still changes the checkbox or radio state.
+
 ### `data-py-params` (optional)
 
 JSON payload passed to Python method.

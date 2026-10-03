@@ -58,6 +58,7 @@ same pass when each surface is affected.
 - Native navigation, submission, and reset defaults are prevented when the
   runtime handles those destructive actions. Checkbox, radio, label, and
   ordinary button defaults remain intact.
+  A label activation makes one call even when the label contains its control.
 - Lifecycle events are observational and non-cancelable. `py:error` always
   identifies stale request failures through `detail.stale`.
   `detail.element` identifies the original control. Errors from detached controls

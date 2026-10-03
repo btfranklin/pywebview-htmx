@@ -50,6 +50,7 @@ When handling native link navigation, form submission, or a form-associated
 submit/reset control, the runtime prevents that destructive default action. It
 preserves the normal behavior of checkboxes, radio buttons, labels, and
 ordinary buttons.
+A label that contains its control calls Python once per activation.
 
 ## Params contract
 

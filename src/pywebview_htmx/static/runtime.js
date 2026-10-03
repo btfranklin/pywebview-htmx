@@ -11,6 +11,7 @@
   const targetedRequestState = new Map();
   const waitState = new WeakMap();
   const boundElements = new WeakSet();
+  const pendingLabelControlClicks = new WeakSet();
 
   function $(selector, root = document) {
     if (!selector) return null;
@@ -214,6 +215,9 @@
       const functionName = element.getAttribute("py-call");
       const eventName = element.getAttribute("py-trigger") || "click";
       const targetSelector = (element.getAttribute("py-target") || "").trim() || null;
+      const labelControl = element.tagName === "LABEL" && eventName === "click"
+        ? element.control
+        : null;
 
       if (!functionName) {
         console.warn("PyWebview HTMX: py-call is empty", element);
@@ -222,6 +226,26 @@
       boundElements.add(element);
 
       element.addEventListener(eventName, async (event) => {
+        if (eventName === "click" && pendingLabelControlClicks.has(element)) {
+          pendingLabelControlClicks.delete(element);
+          return;
+        }
+        if (labelControl && event.target === labelControl) {
+          if (pendingLabelControlClicks.has(labelControl)) {
+            pendingLabelControlClicks.delete(labelControl);
+            return;
+          }
+          if (
+            labelControl.hasAttribute("py-call") &&
+            (labelControl.getAttribute("py-trigger") || "click") === "click"
+          ) {
+            return;
+          }
+        } else if (labelControl && event.target !== labelControl) {
+          pendingLabelControlClicks.add(labelControl);
+          setTimeout(() => pendingLabelControlClicks.delete(labelControl), 0);
+        }
+
         if (shouldPreventDefault(element, eventName) && event.cancelable) {
           event.preventDefault();
         }

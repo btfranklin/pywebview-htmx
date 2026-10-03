@@ -359,6 +359,128 @@ def test_native_destructive_defaults_are_prevented_selectively(
     assert page.evaluate("window.calls") == 7
 
 
+@pytest.mark.parametrize("control_type", ["checkbox", "radio"])
+def test_label_text_click_does_not_repeat_for_forwarded_control_click(
+    runtime_browser: RuntimeBrowser,
+    js_source: str,
+    control_type: str,
+) -> None:
+    other_radio = (
+        '<input id="other" type="radio" name="choice">'
+        if control_type == "radio"
+        else ""
+    )
+    runtime_browser.load(
+        f'<label id="label" py-call="act" py-target="#result">'
+        f'<input id="check" type="{control_type}" name="choice">'
+        '<span id="label-text">Toggle</span></label>'
+        f'{other_radio}'
+        '<div id="result"></div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate(
+        """
+        () => {
+          window.calls = 0;
+          window.pywebview = {api: {act: () => { calls += 1; return ''; }}};
+        }
+        """
+    )
+    runtime_browser.process()
+
+    page.locator("#label-text").click()
+    assert page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == 1
+
+    page.locator("#check").click()
+    assert page.locator("#check").is_checked() is (control_type == "radio")
+    assert page.evaluate("window.calls") == 2
+
+    if control_type == "radio":
+        page.locator("#other").click()
+        assert not page.locator("#check").is_checked()
+
+    page.locator("#check").focus()
+    page.keyboard.press("Space")
+    assert page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == 3
+
+
+def test_external_label_and_control_clear_forwarding_marker_in_same_task(
+    runtime_browser: RuntimeBrowser,
+    js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<label id="label" for="check" py-call="labelAction" '
+        'py-target="#result">Toggle</label>'
+        '<input id="check" type="checkbox" py-call="controlAction" '
+        'py-target="#result"><div id="result"></div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate(
+        """
+        () => {
+          window.calls = [];
+          window.pywebview = {api: {
+            labelAction: () => { calls.push('label'); return ''; },
+            controlAction: () => { calls.push('control'); return ''; },
+          }};
+        }
+        """
+    )
+    runtime_browser.process()
+
+    page.evaluate(
+        """() => {
+          document.querySelector('#label').click();
+          document.querySelector('#check').click();
+        }"""
+    )
+    assert not page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == ["label", "control"]
+
+
+def test_nested_checkbox_py_call_runs_once_per_activation(
+    runtime_browser: RuntimeBrowser,
+    js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<label id="label" py-call="labelAction" py-target="#result">'
+        '<input id="check" type="checkbox" py-call="checkboxAction" '
+        'py-target="#result"><span id="label-text">Toggle</span>'
+        '</label><div id="result"></div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate(
+        """
+        () => {
+          window.calls = [];
+          window.pywebview = {api: {
+            labelAction: () => { calls.push('label'); return ''; },
+            checkboxAction: () => { calls.push('checkbox'); return ''; },
+          }};
+        }
+        """
+    )
+    runtime_browser.process()
+
+    page.locator("#label-text").click()
+    assert page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == ["label"]
+
+    page.locator("#check").click()
+    assert not page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == ["label", "checkbox"]
+
+    page.locator("#check").focus()
+    page.keyboard.press("Space")
+    assert page.locator("#check").is_checked()
+    assert page.evaluate("window.calls") == ["label", "checkbox", "checkbox"]
+
+
 def test_form_serialization_repeats_submitter_and_skips_files(
     runtime_browser: RuntimeBrowser,
     js_source: str,
