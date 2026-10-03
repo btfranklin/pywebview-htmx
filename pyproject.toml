@@ -54,5 +54,6 @@ includes = ["src/pywebview_htmx"]
 
 [tool.pdm.scripts]
 test = "pytest"
+test-native = "python tests/native_smoke.py"
 lint = "ruff check ."
 install-browser = "playwright install chromium"

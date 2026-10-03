@@ -6,6 +6,7 @@
 - Install the Chromium test browser: `pdm run install-browser`
 - Lint: `pdm run lint`
 - Test: `pdm run test`
+- Native bridge smoke test: `pdm run test-native`
 - Run the manual demo: `pdm run python app.py`
 
 Use PDM for dependency and environment management. Do not use pip to add,
@@ -16,6 +17,16 @@ The runtime behavior suite uses real headless Chromium through Playwright.
 Browser tests fail rather than skip when Chromium is unavailable, so run the
 browser-install command after initial setup and whenever Playwright reports a
 missing executable.
+
+The native smoke test needs a local desktop session and a supported PyWebview
+renderer. It creates a hidden window, calls a real Python handler, checks the
+returned HTML, and checks that a Python exception reaches `py:error`. The
+window closes after the check. A failed check exits with an error.
+The test deliberately raises a Python exception to check error delivery. Its
+expected traceback can appear in the logs.
+
+Run it after changes to window setup or bridge interactions. It is separate
+from the headless test suite because CI does not provide a desktop session.
 
 ## Package Policy
 

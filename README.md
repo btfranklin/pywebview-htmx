@@ -325,6 +325,29 @@ scope are ignored. Only the latest request for that scope updates the DOM.
 If a request is already in flight for the same request state scope, new triggers
 are ignored and `py:ignored` is emitted.
 
+### Python Handler Concurrency
+
+`latest-wins` does not cancel Python work. Each accepted call still runs, even
+when its returned HTML is later ignored. PyWebview runs exposed handlers in
+separate threads. Protect shared mutable data with a lock or a database
+transaction when needed.
+
+`drop` applies to the same request scope. It does not prevent calls from other
+scopes from changing the same Python data.
+
+### Bridge Readiness
+
+PyWebview creates the bridge after the document loads. Wait for the
+`pywebviewready` event before starting programmatic calls:
+
+```js
+window.addEventListener("pywebviewready", () => {
+  document.querySelector("#load-button").click();
+});
+```
+
+A call made before the bridge is available emits `py:error`. It is not queued.
+
 ## Dynamic Content Re-processing
 
 After a swap, `pywebview-htmx` automatically scans swapped content for new `py-call`

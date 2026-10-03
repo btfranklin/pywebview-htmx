@@ -87,6 +87,13 @@ accepted request.
 Bundled loading styles do not block pointer input. Request policy controls
 whether another trigger is accepted.
 
+`latest-wins` does not cancel Python work. PyWebview runs exposed handlers in
+separate threads. Protect shared mutable data with a lock or a database
+transaction when needed. `drop` does not act as a global lock across scopes.
+
+Wait for `window`'s `pywebviewready` event before programmatic calls at startup.
+Calls made before the bridge is available emit `py:error` and are not queued.
+
 ## Events
 
 - `py:trigger`
