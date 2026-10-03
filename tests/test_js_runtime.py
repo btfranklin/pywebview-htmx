@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 
 import pytest
@@ -521,6 +522,49 @@ def test_form_serialization_repeats_submitter_and_skips_files(
         "tag": ["one", "two"],
         "title": "Example",
         "action": "save",
+    }
+
+
+def test_form_serialization_preserves_reserved_object_property_names(
+    runtime_browser: RuntimeBrowser,
+    js_source: str,
+) -> None:
+    runtime_browser.load(
+        """
+        <form id="form" py-call="save" py-trigger="submit"
+              data-py-params='{"fixed":"static","static":"yes"}'>
+          <input name="__proto__" value="one">
+          <input name="__proto__" value="two">
+          <input name="constructor" value="ctor">
+          <input name="toString" value="string">
+          <input name="fixed" value="form">
+          <button id="save">Save</button>
+        </form>
+        """,
+        js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate(
+        """
+        () => {
+          window.receivedParams = null;
+          window.pywebview = {api: {save: params => {
+            window.receivedParams = params;
+            return '';
+          }}};
+        }
+        """
+    )
+    runtime_browser.process()
+    page.locator("#save").click()
+    page.wait_for_function("window.receivedParams !== null")
+
+    assert json.loads(page.evaluate("JSON.stringify(window.receivedParams)")) == {
+        "__proto__": ["one", "two"],
+        "constructor": "ctor",
+        "toString": "string",
+        "fixed": "form",
+        "static": "yes",
     }
 
 

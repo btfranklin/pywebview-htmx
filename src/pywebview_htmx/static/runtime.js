@@ -81,7 +81,7 @@
   }
 
   function serializeForm(form, event) {
-    const params = {};
+    const params = Object.create(null);
     const formData = new FormData(form);
 
     for (const [key, value] of formData.entries()) {
