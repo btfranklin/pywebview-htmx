@@ -258,7 +258,6 @@ body {
 
 .py-waiting {
   opacity: 0.88;
-  pointer-events: none;
 }
 
 .pyh-event-log {

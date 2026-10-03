@@ -309,6 +309,9 @@ The `py-wait` selector is resolved for each accepted request. Loading state is
 counted separately per resolved wait element, so a shared spinner stays active
 until every request using that particular element finishes.
 
+The bundled loading styles show `.py-waiting` without blocking pointer input.
+The request policy controls whether another trigger is accepted.
+
 ### `latest-wins` (default)
 
 Multiple rapid requests are allowed; stale responses in the same request state

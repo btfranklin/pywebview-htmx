@@ -5,6 +5,8 @@ from dataclasses import dataclass, field
 import pytest
 from playwright.sync_api import Page
 
+from pywebview_htmx import get_theme_css
+
 
 @dataclass
 class RuntimeBrowser:
@@ -520,6 +522,63 @@ def test_form_serialization_repeats_submitter_and_skips_files(
         "title": "Example",
         "action": "save",
     }
+
+
+@pytest.mark.parametrize(
+    ("policy", "expected_calls", "expected_ignored"),
+    [("latest-wins", 2, 0), ("drop", 1, 1)],
+)
+def test_waiting_theme_keeps_controls_clickable_for_request_policy(
+    runtime_browser: RuntimeBrowser,
+    js_source: str,
+    policy: str,
+    expected_calls: int,
+    expected_ignored: int,
+) -> None:
+    runtime_browser.load(
+        f'<button id="load" py-call="load" py-policy="{policy}" '
+        'py-target="#result">Load</button><div id="result"></div>',
+        js_source,
+    )
+    page = runtime_browser.page
+    page.add_style_tag(content=get_theme_css())
+    install_pending_bridge(page)
+    page.evaluate(
+        """
+        () => {
+          window.ignoredCalls = 0;
+          document.addEventListener('py:ignored', () => ignoredCalls++);
+        }
+        """
+    )
+    runtime_browser.process()
+
+    page.locator("#load").click()
+    assert page.locator("#load").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )
+    assert page.locator("#load").evaluate(
+        "node => getComputedStyle(node).pointerEvents"
+    ) == "auto"
+
+    page.locator("#load").click()
+    assert page.evaluate("window.bridgeCalls.length") == expected_calls
+    assert page.evaluate("window.ignoredCalls") == expected_ignored
+
+    if policy == "latest-wins":
+        resolve_request(page, 1, "newest")
+        page.wait_for_function(
+            "document.querySelector('#result').textContent === 'newest'"
+        )
+        resolve_request(page, 0, "stale")
+    else:
+        resolve_request(page, 0, "accepted")
+    page.wait_for_function(
+        "!document.querySelector('#load').classList.contains('py-waiting')"
+    )
+    assert page.locator("#result").inner_text() == (
+        "newest" if policy == "latest-wins" else "accepted"
+    )
 
 
 @pytest.mark.parametrize("swap_style", ["innerHTML", "outerHTML", "append"])

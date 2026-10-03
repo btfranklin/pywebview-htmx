@@ -83,6 +83,8 @@ selector coordinate `latest-wins` and `drop` behavior across replacement of the
 matching DOM node. Selector state is retained only while requests are in
 flight. Loading state is counted separately per wait element resolved for each
 accepted request.
+Bundled loading styles do not block pointer input. Request policy controls
+whether another trigger is accepted.
 
 ## Events
 
