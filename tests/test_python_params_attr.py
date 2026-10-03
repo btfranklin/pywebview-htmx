@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from pywebview_htmx import encode_params_attr
 
 
@@ -17,3 +19,9 @@ def test_encode_params_attr_escapes_quotes_and_tags() -> None:
 def test_encode_params_attr_is_exported_from_package() -> None:
     encoded = encode_params_attr({"name": "pywebview-htmx"})
     assert isinstance(encoded, str)
+
+
+@pytest.mark.parametrize("value", [float("nan"), float("inf"), -float("inf")])
+def test_encode_params_attr_rejects_non_finite_numbers(value: float) -> None:
+    with pytest.raises(ValueError, match="Out of range float values"):
+        encode_params_attr({"reading": value})

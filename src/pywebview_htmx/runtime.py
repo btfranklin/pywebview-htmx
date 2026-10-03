@@ -114,7 +114,7 @@ def get_runtime_script() -> str:
 def encode_params_attr(params: Any) -> str:
     """Encode a payload for safe embedding in ``data-py-params``."""
     return html_escape(
-        json.dumps(params, sort_keys=True),
+        json.dumps(params, sort_keys=True, allow_nan=False),
         quote=True,
     )
 

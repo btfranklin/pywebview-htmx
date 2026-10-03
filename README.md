@@ -155,6 +155,9 @@ Injects the runtime script tag into an HTML string (idempotent).
 Returns HTML-escaped JSON that is safe to place in a `data-py-params`
 attribute.
 
+Non-finite numbers (`NaN` and positive or negative infinity) raise `ValueError`.
+JSON does not support these values.
+
 ```python
 from pywebview_htmx import encode_params_attr
 

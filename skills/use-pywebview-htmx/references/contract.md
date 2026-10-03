@@ -62,6 +62,7 @@ A label that contains its control calls Python once per activation.
 - File inputs are skipped with a warning.
 
 Use `encode_params_attr(...)` when Python emits `data-py-params` into HTML.
+Non-finite numbers raise `ValueError` because JSON does not support them.
 
 ## Runtime config
 
