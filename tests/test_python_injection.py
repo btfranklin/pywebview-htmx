@@ -128,3 +128,45 @@ def test_injection_preserves_unrelated_script_tags() -> None:
     result = inject_runtime(html)
     assert "<script>var x = 1;</script>" in result
     assert result.count("<script>var x = 1;</script>") == 1
+
+
+@pytest.mark.parametrize(
+    "inactive_markup",
+    [
+        '<!-- <script data-pywebview-htmx="true"></script> -->',
+        '<template><script data-pywebview-htmx="true"></script></template>',
+        '<textarea><script data-pywebview-htmx="true"></script></textarea>',
+        '<script>const example = \'<script data-pywebview-htmx="true">\';</script>',
+        '<script x-data-pywebview-htmx="true"></script>',
+    ],
+)
+def test_injection_ignores_inactive_or_unrelated_markers(
+    inactive_markup: str,
+) -> None:
+    html = f"<html><body>{inactive_markup}</body></html>"
+    result = inject_runtime(html)
+    injection = f"{SCRIPT_MARKER}{get_runtime_script()}</script>"
+    assert result == html.replace("</body>", f"{injection}</body>")
+    assert inject_runtime(result) == result
+
+
+def test_injection_preserves_unicode_and_ignores_comment_closing_tag() -> None:
+    html = (
+        "<html>\n<head><title>İstanbul</title></head>\n"
+        "<body><p>İstanbul</p></body></html><!-- </body> -->"
+    )
+    result = inject_runtime(html)
+    prefix, suffix = html.split("</body>", 1)
+    injection = f"{SCRIPT_MARKER}{get_runtime_script()}</script>"
+    assert result == f"{prefix}{injection}</body>{suffix}"
+
+
+def test_injection_ignores_closing_body_text_in_attributes_and_raw_text() -> None:
+    html = (
+        '<html><body><div title="</body>">İ</div>'
+        '<textarea></body></textarea><template></body></template>'
+        '</body></html>'
+    )
+    result = inject_runtime(html)
+    injection = f"{SCRIPT_MARKER}{get_runtime_script()}</script>"
+    assert result.endswith(f"{injection}</body></html>")

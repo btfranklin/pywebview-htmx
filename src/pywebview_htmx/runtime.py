@@ -2,22 +2,75 @@ from __future__ import annotations
 
 from importlib.resources import files
 import json
-import re
 from html import escape as html_escape
+from html.parser import HTMLParser
 from typing import Any
 
 import webview
 
-_SCRIPT_TAG_RE = re.compile(
-    r"<script[^>]*\bdata-pywebview-htmx\s*=\s*(?:[\"']true[\"']|true\b)",
-    re.IGNORECASE,
-)
-_THEME_TAG_RE = re.compile(
-    r"<style[^>]*\bdata-pywebview-theme\s*=\s*[\"'](?P<name>[^\"']+)[\"'][^>]*>.*?</style>",
-    re.IGNORECASE | re.DOTALL,
-)
 _THEME_BASE_NAME = "base"
 DEFAULT_THEME = "aurora"
+
+
+class _AssetTags(HTMLParser):
+    """Find active asset tags and closing tags in the original HTML."""
+
+    CDATA_CONTENT_ELEMENTS = (
+        *HTMLParser.CDATA_CONTENT_ELEMENTS, "title", "textarea", "noscript",
+    )
+
+    def __init__(self, html: str) -> None:
+        super().__init__(convert_charrefs=False)
+        self._html = html
+        self._line_starts = [0] + [
+            index + 1 for index, char in enumerate(html) if char == "\n"
+        ]
+        self._template_depth = 0
+        self._theme_start: tuple[int, str] | None = None
+        self.runtime_present = False
+        self.theme: tuple[int, int, str] | None = None
+        self.closing_tags: dict[str, int] = {}
+        self.feed(html)
+        self.close()
+
+    def _offset(self) -> int:
+        line, column = self.getpos()
+        return self._line_starts[line - 1] + column
+
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]],
+    ) -> None:
+        if tag == "template":
+            self._template_depth += 1
+        if self._template_depth:
+            return
+
+        attributes: dict[str, str | None] = {}
+        for name, value in attrs:
+            attributes.setdefault(name, value)
+        marker = attributes.get("data-pywebview-htmx")
+        if tag == "script" and marker is not None and marker.lower() == "true":
+            self.runtime_present = True
+        if tag == "style" and self.theme is None:
+            theme = attributes.get("data-pywebview-theme")
+            if theme is not None:
+                self._theme_start = (self._offset(), theme)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag == "template" and self._template_depth:
+            self._template_depth -= 1
+            return
+        if self._template_depth:
+            return
+
+        offset = self._offset()
+        if tag in {"head", "body"}:
+            self.closing_tags[tag] = offset
+        if tag == "style" and self._theme_start is not None:
+            start, theme = self._theme_start
+            end = self._html.index(">", offset) + 1
+            self.theme = (start, end, theme)
+            self._theme_start = None
 
 
 def list_themes() -> list[str]:
@@ -68,17 +121,14 @@ def encode_params_attr(params: Any) -> str:
 
 def inject_runtime(html: str) -> str:
     """Inject the runtime script into an HTML string before ``</body>`` when present."""
-    if _SCRIPT_TAG_RE.search(html):
+    tags = _AssetTags(html)
+    if tags.runtime_present:
         return html
 
     script_content = get_runtime_script()
     injection = f'<script data-pywebview-htmx="true">{script_content}</script>'
 
-    lower_html = html.lower()
-    body_close_idx = lower_html.rfind("</body>")
-    if body_close_idx == -1:
-        return f"{html}{injection}"
-
+    body_close_idx = tags.closing_tags.get("body", len(html))
     return f"{html[:body_close_idx]}{injection}{html[body_close_idx:]}"
 
 
@@ -88,24 +138,18 @@ def inject_theme(html: str, theme: str = DEFAULT_THEME) -> str:
     css = get_theme_css(normalized_theme)
     injection = f'<style data-pywebview-theme="{normalized_theme}">{css}</style>'
 
-    match = _THEME_TAG_RE.search(html)
-    if match:
-        current_theme = match.group("name").strip().lower()
+    tags = _AssetTags(html)
+    if tags.theme is not None:
+        start, end, current_theme = tags.theme
+        current_theme = current_theme.strip().lower()
         if current_theme == normalized_theme:
             return html
-        start, end = match.span()
         return f"{html[:start]}{injection}{html[end:]}"
 
-    lower_html = html.lower()
-    head_close_idx = lower_html.rfind("</head>")
-    if head_close_idx != -1:
-        return f"{html[:head_close_idx]}{injection}{html[head_close_idx:]}"
-
-    body_close_idx = lower_html.rfind("</body>")
-    if body_close_idx != -1:
-        return f"{html[:body_close_idx]}{injection}{html[body_close_idx:]}"
-
-    return f"{injection}{html}"
+    insertion_idx = tags.closing_tags.get(
+        "head", tags.closing_tags.get("body", 0),
+    )
+    return f"{html[:insertion_idx]}{injection}{html[insertion_idx:]}"
 
 
 def create_window(

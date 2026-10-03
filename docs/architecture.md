@@ -40,6 +40,8 @@ same pass when each surface is affected.
 
 - Normal app usage should go through `create_window()` so runtime and theme
   injection stay automatic.
+- Both injection helpers scan HTML tags at their original character positions.
+  Comments, templates, and raw text do not count as active asset tags.
 - Python API handlers exposed through `js_api` must return HTML strings.
 - Returned fragments are inserted directly into the DOM. Escape or sanitize
   untrusted data before interpolating it into markup.

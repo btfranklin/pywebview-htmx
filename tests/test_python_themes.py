@@ -112,3 +112,44 @@ def test_create_window_theme_none_skips_theme_injection(
 
     assert "data-pywebview-theme" not in captured["kwargs"]["html"]
     assert 'data-pywebview-htmx="true"' in captured["kwargs"]["html"]
+
+
+@pytest.mark.parametrize(
+    "inactive_markup",
+    [
+        '<!-- <style data-pywebview-theme="paper">example</style> -->',
+        '<template><style data-pywebview-theme="paper">example</style></template>',
+        '<textarea><style data-pywebview-theme="paper">example</style></textarea>',
+        '<style x-data-pywebview-theme="paper">body { color: red; }</style>',
+    ],
+)
+def test_theme_ignores_inactive_or_unrelated_markers(inactive_markup: str) -> None:
+    html = f"<html><head>{inactive_markup}</head><body>İstanbul</body></html>"
+    result = inject_theme(html, "aurora")
+    css = get_theme_css("aurora")
+    injection = f'<style data-pywebview-theme="aurora">{css}</style>'
+    assert result == html.replace("</head>", f"{injection}</head>")
+    assert inject_theme(result, "paper").count(inactive_markup) == 1
+
+
+def test_theme_preserves_unicode_and_ignores_comment_closing_tag() -> None:
+    html = (
+        "<html>\n<head><title>İİstanbul</title></head>\n"
+        "<body>İstanbul</body></html><!-- </head> -->"
+    )
+    css = get_theme_css("aurora")
+    injection = f'<style data-pywebview-theme="aurora">{css}</style>'
+    assert inject_theme(html) == html.replace("</head>", f"{injection}</head>", 1)
+
+
+def test_theme_replacement_preserves_surrounding_unicode_and_comments() -> None:
+    html = (
+        "<html>\n<head><title>İstanbul</title>"
+        '<style DATA-PYWEBVIEW-THEME=paper>body { color: red; }</STYLE >'
+        "</head><body>İstanbul</body></html><!-- </head> -->"
+    )
+    result = inject_theme(html, "aurora")
+    old_style = '<style DATA-PYWEBVIEW-THEME=paper>body { color: red; }</STYLE >'
+    css = get_theme_css("aurora")
+    new_style = f'<style data-pywebview-theme="aurora">{css}</style>'
+    assert result == html.replace(old_style, new_style)
