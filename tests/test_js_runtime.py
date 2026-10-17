@@ -1208,3 +1208,76 @@ def test_inserted_table_rows_bind_without_scanning_existing_siblings(
     page.locator("#two").click()
     assert page.evaluate("calls") == 2
     assert page.locator("#rows > tr").count() == (4 if style == "append" else 3)
+
+
+def test_debounce_sends_final_form_values_once_per_burst(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<form id="search" py-call="load" py-trigger="input" py-debounce="100" '
+        'py-target="#result"><input id="query" name="query"></form>'
+        '<div id="result"></div>', js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.clock.install()
+    page.evaluate("""() => {
+      const input = document.querySelector('#query');
+      for (const value of ['c', 'ca', 'cat']) {
+        input.value = value;
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+      }
+      input.value = 'not part of the event';
+    }""")
+    assert page.evaluate("bridgeCalls") == []
+    assert not page.locator("#search").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )
+    page.clock.run_for(100)
+    assert page.evaluate("bridgeCalls") == [{"query": "cat"}]
+    resolve_request(page, 0, "cats")
+    page.locator("#result").get_by_text("cats").wait_for()
+    page.locator("#query").fill("dog")
+    page.clock.run_for(100)
+    assert page.evaluate("bridgeCalls") == [{"query": "cat"}, {"query": "dog"}]
+    resolve_request(page, 1, "dogs")
+
+
+def test_debounce_does_not_send_removed_controls_or_partial_composition(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<input id="query" py-call="load" py-trigger="input" py-debounce="100">',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.clock.install()
+    page.locator("#query").evaluate(
+        "node => node.dispatchEvent(new InputEvent('input', {isComposing: true}))"
+    )
+    page.clock.run_for(100)
+    assert page.evaluate("bridgeCalls") == []
+    page.locator("#query").dispatch_event("input")
+    page.locator("#query").evaluate("node => node.remove()")
+    page.clock.run_for(100)
+    assert page.evaluate("bridgeCalls") == []
+
+
+@pytest.mark.parametrize("attribute", ["py-debounce", "py-timeout"])
+@pytest.mark.parametrize("value", ["-1", "wrong", "Infinity", "2147483648"])
+def test_invalid_timing_does_not_start_python(
+    runtime_browser: RuntimeBrowser, js_source: str, attribute: str, value: str,
+) -> None:
+    runtime_browser.load(
+        f'<button id="load" py-call="load" {attribute}="{value}">Load</button>',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    runtime_browser.expect_console_error(f"{attribute} must be between")
+    page.locator("#load").click()
+    assert page.evaluate("bridgeCalls") == []

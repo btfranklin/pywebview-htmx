@@ -46,7 +46,7 @@ same pass when each surface is affected.
 - Returned fragments are inserted directly into the DOM. Escape or sanitize
   untrusted data before interpolating it into markup.
 - `data-py-params` is a JSON object. Invalid input emits `py:error` before
-  calling Python. Submit-triggered forms merge
+  calling Python. Forms with submit, input, or change triggers merge
   named field values over static params.
 - `py-target` selects the swap target. If omitted, the triggering element is
   updated.
@@ -79,3 +79,10 @@ same pass when each surface is affected.
   Existing siblings are not scanned again. Native HTML parsing is preserved.
 - Swapped content is re-processed automatically. Manual DOM insertion still
   needs `window.pywebviewHtmx.process(root)`.
+
+## Delayed input
+
+`py-debounce` retains one timer and the last parameter snapshot per bound
+control. Request state is allocated only when the timer sends the call. The
+callback checks that the control is still attached. It does not cancel work
+already sent to Python.

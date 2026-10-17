@@ -125,7 +125,7 @@
 
   function buildRequestParams(element, eventName, event) {
     const params = parseParams(element);
-    if (element.tagName !== "FORM" || eventName !== "submit") {
+    if (element.tagName !== "FORM" || !["submit", "input", "change"].includes(eventName)) {
       return params;
     }
     return { ...params, ...serializeForm(element, event) };
@@ -256,38 +256,13 @@
       }
       boundElements.add(element);
 
-      element.addEventListener(eventName, async (event) => {
-        if (eventName === "click" && pendingLabelControlClicks.has(element)) {
-          pendingLabelControlClicks.delete(element);
-          return;
-        }
-        if (labelControl && event.target === labelControl) {
-          if (pendingLabelControlClicks.has(labelControl)) {
-            pendingLabelControlClicks.delete(labelControl);
-            return;
-          }
-          if (
-            labelControl.hasAttribute("py-call") &&
-            (labelControl.getAttribute("py-trigger") || "click") === "click"
-          ) {
-            return;
-          }
-        } else if (labelControl && event.target !== labelControl) {
-          pendingLabelControlClicks.add(labelControl);
-          setTimeout(() => pendingLabelControlClicks.delete(labelControl), 0);
-        }
-
-        if (shouldPreventDefault(element, eventName) && event.cancelable) {
-          event.preventDefault();
-        }
-
-        let params;
+      let debounceTimer;
+      async function sendRequest(params) {
         let timeout;
         try {
-          params = buildRequestParams(element, eventName, event);
           timeout = getDuration(element, "py-timeout", config.requestTimeout);
         } catch (error) {
-          reportError(element, error, { phase: "params" });
+          reportError(element, error, { phase: "config" });
           return;
         }
         const scope = getRequestScope(element, targetSelector);
@@ -382,6 +357,56 @@
           state.inFlightCount = Math.max(0, state.inFlightCount - 1);
           releaseRequestScope(scope);
           finishWaiting();
+        }
+      }
+
+      element.addEventListener(eventName, (event) => {
+        if (eventName === "click" && pendingLabelControlClicks.has(element)) {
+          pendingLabelControlClicks.delete(element);
+          return;
+        }
+        if (labelControl && event.target === labelControl) {
+          if (pendingLabelControlClicks.has(labelControl)) {
+            pendingLabelControlClicks.delete(labelControl);
+            return;
+          }
+          if (
+            labelControl.hasAttribute("py-call") &&
+            (labelControl.getAttribute("py-trigger") || "click") === "click"
+          ) {
+            return;
+          }
+        } else if (labelControl && event.target !== labelControl) {
+          pendingLabelControlClicks.add(labelControl);
+          setTimeout(() => pendingLabelControlClicks.delete(labelControl), 0);
+        }
+
+        if (shouldPreventDefault(element, eventName) && event.cancelable) {
+          event.preventDefault();
+        }
+
+        clearTimeout(debounceTimer);
+        if (event.isComposing) return;
+        let debounce;
+        try {
+          debounce = getDuration(element, "py-debounce", 0);
+        } catch (error) {
+          reportError(element, error, { phase: "config" });
+          return;
+        }
+        let params;
+        try {
+          params = buildRequestParams(element, eventName, event);
+        } catch (error) {
+          reportError(element, error, { phase: "params" });
+          return;
+        }
+        if (debounce > 0) {
+          debounceTimer = setTimeout(() => {
+            if (element.isConnected) sendRequest(params);
+          }, debounce);
+        } else {
+          sendRequest(params);
         }
       });
     });

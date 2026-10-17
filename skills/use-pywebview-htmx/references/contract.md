@@ -42,6 +42,7 @@ Normal app usage should go through `create_window()`.
 - `py-wait`: optional selector for the loading-state target
 - `py-policy`: optional per-element request policy override, `latest-wins` or `drop`
 - `py-timeout`: optional Python response deadline in milliseconds
+- `py-debounce`: optional delay after the last event, in milliseconds
 
 If `py-target` is omitted, the triggering element is the target.
 If `py-wait` is missing, empty, invalid, or unresolved, the triggering element
@@ -57,7 +58,7 @@ A label that contains its control calls Python once per activation.
 
 - Missing `data-py-params` becomes `{}`.
 - Invalid JSON or a value that is not an object emits `py:error`. Python is not called.
-- `<form py-trigger="submit">` serializes named fields automatically.
+- Forms with `submit`, `input`, or `change` triggers serialize named fields automatically.
 - Form values merge over any static `data-py-params`.
 - Repeated form field names accumulate into arrays.
 - File inputs are skipped with a warning.
@@ -144,3 +145,26 @@ application check the operation's result before another attempt. If Python
 never returns, the lock remains until the page is reloaded; reloading does not
 prove that the operation was cancelled. Use `latest-wins` for independent read
 operations that can safely run again.
+
+## Delay rapid input calls
+
+Use `py-debounce="200"` on a read operation to wait until input stops for 200 ms.
+Each event replaces the pending call for that control. Only the final event's
+parameter snapshot is sent. Forms with `py-trigger="input"` or `change`
+serialize their named fields, as submit forms do. Input during text composition
+is not sent; the final input event supplies the completed text.
+
+```html
+<form py-call="search" py-trigger="input" py-debounce="200" py-target="#results">
+  <label for="query">Search</label>
+  <input id="query" name="query" type="search">
+</form>
+<div id="results"></div>
+```
+
+The delay defaults to zero. Clicks and submissions remain immediate unless a
+control explicitly sets `py-debounce`. A removed control cannot send its pending
+call while detached. Waiting state and request policy start when the call is
+sent, not while its timer is pending. `drop` can still reject that call if
+another operation is running; use `latest-wins` for live read results. The delay
+does not cancel Python work that has already started.
