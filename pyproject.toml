@@ -55,7 +55,8 @@ includes = ["src/pywebview_htmx"]
 [tool.pdm.scripts]
 check = {composite = ["lint", "test", "check-docs"]}
 check-docs = "perfect-doc check . --offline --no-banner"
-test = "pytest"
+test = "pytest --browser chromium --browser webkit"
+check-dist = "python scripts/check_distribution.py"
 test-native = "python tests/native_smoke.py"
 lint = "ruff check ."
-install-browser = "playwright install chromium"
+install-browser = "playwright install chromium webkit"

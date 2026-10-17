@@ -6,12 +6,15 @@ the GitHub Release notes before the release is published.
 
 ## Required Local Checks
 
-Run the package validation and build locally before tagging:
+Run the package validation and build locally before tagging. Use a clean
+distribution directory for this build:
 
 ```bash
-pdm run lint
-pdm run test
+pdm run install-browser
+pdm run check
 pdm build
+pdm run check-dist dist
+pdm run check-dist dist --native
 ```
 
 ## Process
@@ -35,9 +38,39 @@ git push origin v0.2.1
 - `.github/workflows/create-draft-release.yml` runs on pushed `v*.*.*` tags and
   drafts release notes with `btfranklin/release-notes-scribe`.
 - `.github/workflows/python-publish.yml` runs when a GitHub Release is
-  published, builds with PDM, and publishes to PyPI through trusted publishing.
+  published. It first calls the package validation workflow at the release ref.
+  That workflow builds once and checks the saved wheel and source archive.
+  Publishing waits for all checks and uploads the same saved files through
+  trusted publishing; the publishing job does not rebuild them.
 - Versioning is SCM-derived through the PDM configuration in `pyproject.toml`.
 
 Do not publish the GitHub Release before the tag-triggered release-notes workflow
 has populated the draft. The PyPI publishing workflow does not generate release
 notes.
+
+## Release Gates
+
+The package workflow must pass these checks for the release commit:
+
+- Lint and the offline documentation check.
+- The full test suite in Chromium and WebKit.
+- Wheel and source archive installation outside the checkout, with version and
+  resource checks.
+- Native bridge checks against the saved wheel on macOS WKWebView, Windows
+  WebView2, and Linux Qt. The Linux job uses Xvfb and the PyWebview `pyside6` extra.
+
+The native checks exercise form parameters, repeated fields, the submitter,
+overlapping calls, dynamic controls, theme changes, exceptions, and busy-state
+cleanup. A missing renderer fails its job. These jobs test the named backends;
+they do not establish GTK or other optional renderer coverage.
+
+A failed validation job blocks publication. Download the `python-distributions`
+artifact to inspect exactly what was checked. Only the publishing job receives
+`id-token: write`; checks have read-only repository access. The existing
+`release` environment and PyPI Trusted Publisher workflow name are unchanged.
+
+The artifact action references and the PyWebview Linux extra were checked
+against upstream sources on 17 October 2026. See
+[upload-artifact](https://github.com/actions/upload-artifact),
+[download-artifact](https://github.com/actions/download-artifact), and
+[PyWebview installation](https://pywebview.flowrl.com/guide/installation.html).

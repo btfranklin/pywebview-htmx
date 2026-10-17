@@ -5,6 +5,7 @@ on:
         branches: ["main"]
     pull_request:
         branches: ["main"]
+    workflow_call:
 
 permissions:
     contents: read
@@ -12,29 +13,70 @@ permissions:
 jobs:
     build:
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                python-version: ["3.14"]
-
+        timeout-minutes: 20
         steps:
             - uses: actions/checkout@v7
-            - name: Set up Python ${{ matrix.python-version }}
-              uses: actions/setup-python@v6
               with:
-                  python-version: ${{ matrix.python-version }}
-            - name: Install PDM
-              uses: pdm-project/setup-pdm@v4
+                  fetch-depth: 0
+            - uses: actions/setup-python@v6
+              with:
+                  python-version: "3.14"
+            - uses: pdm-project/setup-pdm@v4
               with:
                   cache: true
                   cache-dependency-path: pdm.lock
-            - name: Install dependencies
+            - name: Install dependencies and browser engines
               run: |
-                  pdm install --group dev
-                  pdm run playwright install --with-deps chromium
-            - name: Lint with ruff
+                  pdm install --check --frozen-lockfile --group dev
+                  pdm run playwright install --with-deps chromium webkit
+            - name: Install Perfect Doc
+              env:
+                  PERFECT_DOC_URL: https://github.com/btfranklin/perfect-doc/releases/download/v0.1.0/perfect-doc-0.1.0-x86_64-unknown-linux-gnu.tar.gz
+                  PERFECT_DOC_SHA256: 80da73f3a01ab1301539561812d81213112187e71ad4ee630a0d70e95692cd22
               run: |
-                  pdm run lint
-            - name: Test with pytest
+                  curl --fail --location "$PERFECT_DOC_URL" --output "$RUNNER_TEMP/perfect-doc.tar.gz"
+                  printf '%s  %s\n' "$PERFECT_DOC_SHA256" "$RUNNER_TEMP/perfect-doc.tar.gz" | sha256sum --check
+                  mkdir "$RUNNER_TEMP/perfect-doc-bin"
+                  tar -xzf "$RUNNER_TEMP/perfect-doc.tar.gz" -C "$RUNNER_TEMP/perfect-doc-bin" --strip-components=1
+                  echo "$RUNNER_TEMP/perfect-doc-bin" >> "$GITHUB_PATH"
+            - name: Check source and documentation
+              run: pdm run check
+            - name: Build and check both distributions
               run: |
-                  pdm run test
+                  pdm build
+                  pdm run check-dist dist
+            - uses: actions/upload-artifact@v7
+              with:
+                  name: python-distributions
+                  path: dist/
+                  if-no-files-found: error
+
+    native:
+        needs: build
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [macos-latest, windows-latest, ubuntu-latest]
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 20
+        steps:
+            - uses: actions/checkout@v7
+            - uses: actions/setup-python@v6
+              with:
+                  python-version: "3.14"
+            - uses: pdm-project/setup-pdm@v4
+            - uses: actions/download-artifact@v8
+              with:
+                  name: python-distributions
+                  path: dist/
+            - name: Install Linux desktop libraries
+              if: runner.os == 'Linux'
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y xvfb libegl1 libopengl0 libxcb-cursor0 libxkbcommon-x11-0 libnss3 libasound2t64
+            - name: Check installed wheel in Linux Qt
+              if: runner.os == 'Linux'
+              run: xvfb-run -a python scripts/check_distribution.py dist --native
+            - name: Check installed wheel in native desktop renderer
+              if: runner.os != 'Linux'
+              run: python scripts/check_distribution.py dist --native

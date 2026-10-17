@@ -28,7 +28,7 @@ Use this file as the fast route into the repository. Keep durable details in
 ## Validation
 
 - Install dependencies: `pdm install`
-- Install the Chromium test browser: `pdm run install-browser`
+- Install Chromium and WebKit: `pdm run install-browser`
 - All checks: `pdm run check`
 - Offline documentation check: `pdm run check-docs` (requires the native `perfect-doc` executable)
 - Lint: `pdm run lint`
