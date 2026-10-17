@@ -41,6 +41,7 @@ Normal app usage should go through `create_window()`.
 - `py-swap`: `innerHTML`, `outerHTML`, or `append`
 - `py-wait`: optional selector for the loading-state target
 - `py-policy`: optional per-element request policy override, `latest-wins` or `drop`
+- `py-timeout`: optional Python response deadline in milliseconds
 
 If `py-target` is omitted, the triggering element is the target.
 If `py-wait` is missing, empty, invalid, or unresolved, the triggering element
@@ -72,6 +73,7 @@ Available on `window.pywebviewHtmx.config`:
 - `swapDelay`
 - `settleDelay`
 - `requestPolicy`
+- `requestTimeout`
 
 Global config is the default. `py-policy` overrides request behavior for a
 single element. Runtime defaults and `py-wait` are resolved for each accepted
@@ -126,3 +128,19 @@ aliases such as `.btn` and `.demo-card` are not part of the public surface.
 - Returned HTML is inserted directly into the DOM.
 - Escape or sanitize untrusted content before returning markup.
 - Treat Python API methods as privileged application logic.
+
+## Request deadlines
+
+Set `py-timeout="2000"` for a two-second Python response deadline. The global
+`requestTimeout` default is `0` (no deadline). Values are milliseconds from
+0 to 2147483647. A timeout emits `py:error` with `detail.phase="timeout"` and
+`error.name="TimeoutError"`. The loading indicator stops, and a late response
+cannot change the page. A late Python failure still emits `py:error` with
+`detail.expired=true`.
+
+A deadline does not cancel Python work or retry the call. Under `drop`, the
+scope stays locked until Python finishes. Show the timeout message and let the
+application check the operation's result before another attempt. If Python
+never returns, the lock remains until the page is reloaded; reloading does not
+prove that the operation was cancelled. Use `latest-wins` for independent read
+operations that can safely run again.

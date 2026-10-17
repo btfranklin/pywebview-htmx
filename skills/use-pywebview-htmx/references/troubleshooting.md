@@ -85,6 +85,13 @@ Remember:
 - if the wait target selector is wrong or invalid, the trigger element is used
   as fallback
 - shared wait targets stay waiting until all in-flight requests using that target
-  have settled
+  have settled or reached their response deadlines
 - `py-wait` is resolved for each accepted request, so confirm replacement markup
   still provides the intended wait element
+
+## Python response timed out
+
+Inspect `py:error` for `detail.phase="timeout"`. The visible wait has ended,
+but Python may still be running. Do not retry a mutation automatically.
+`drop` rejects further calls in that scope until Python settles. An expired
+success is ignored; an expired failure remains observable.

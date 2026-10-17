@@ -1037,3 +1037,101 @@ def test_invalid_params_never_call_python(
     assert not page.locator("#control").evaluate(
         "node => node.classList.contains('py-waiting')"
     )
+
+
+@pytest.mark.parametrize("late_error", [False, True])
+def test_deadline_clears_wait_but_keeps_drop_lock_until_python_finishes(
+    runtime_browser: RuntimeBrowser, js_source: str, late_error: bool,
+) -> None:
+    runtime_browser.load(
+        '<button id="load" py-call="load" py-policy="drop" '
+        'py-timeout="20" py-target="#result">Save</button>'
+        '<div id="result">original</div>', js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    page.evaluate("""() => {
+      window.errors = [];
+      window.ignored = 0;
+      document.addEventListener('py:error', e => errors.push({
+        phase: e.detail.phase, expired: e.detail.expired,
+        name: e.detail.error.name,
+      }));
+      document.addEventListener('py:ignored', () => ignored++);
+    }""")
+    runtime_browser.process()
+    runtime_browser.expect_console_error("timed out")
+    page.locator("#load").click()
+    page.wait_for_function("errors.length === 1")
+    assert page.evaluate("errors[0].name") == "TimeoutError"
+    assert page.evaluate("errors[0].phase") == "timeout"
+    assert not page.locator("#load").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )
+    page.locator("#load").click()
+    assert page.evaluate("bridgeCalls.length") == 1
+    assert page.evaluate("ignored") == 1
+    if late_error:
+        runtime_browser.expect_console_error("late failure")
+        reject_request(page, 0, "late failure")
+        page.wait_for_function("errors.length === 2")
+        assert page.evaluate("errors[1].expired") is True
+    else:
+        resolve_request(page, 0, "expired result")
+    assert page.locator("#result").inner_text() == "original"
+    page.locator("#load").evaluate("node => node.setAttribute('py-timeout', '0')")
+    page.locator("#load").click()
+    assert page.evaluate("bridgeCalls.length") == 2
+    resolve_request(page, 1, "confirmed")
+    page.locator("#result").get_by_text("confirmed").wait_for()
+
+
+def test_deadline_keeps_other_requests_waiting_and_ignores_late_success(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<button id="first" py-call="load" py-target="#result" '
+        'py-wait="#status">First</button>'
+        '<button id="second" py-call="load" py-target="#result" '
+        'py-timeout="0" py-wait="#status">Second</button>'
+        '<span id="status"></span><div id="result"></div>', js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    page.evaluate("""() => {
+      pywebviewHtmx.config.requestTimeout = 20;
+      window.errors = [];
+      document.addEventListener('py:error', e => errors.push(e.detail.stale));
+    }""")
+    runtime_browser.process()
+    runtime_browser.expect_console_error("timed out")
+    page.evaluate("""() => {
+      document.querySelector('#first').click();
+      document.querySelector('#second').click();
+    }""")
+    page.wait_for_function("errors.length === 1")
+    assert page.evaluate("errors") == [True]
+    assert page.locator("#status").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )
+    resolve_request(page, 1, "newest")
+    page.locator("#result").get_by_text("newest").wait_for()
+    resolve_request(page, 0, "expired")
+    assert page.locator("#result").inner_text() == "newest"
+    assert not page.locator("#status").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )
+
+
+def test_deadline_timer_is_removed_after_success(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<button id="load" py-call="load" py-timeout="30">Load</button>', js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate("window.pywebview = {api: {load: () => 'done'}}")
+    runtime_browser.process()
+    page.locator("#load").click()
+    page.wait_for_timeout(60)
+    assert page.locator("#load").inner_text() == "done"

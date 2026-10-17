@@ -256,6 +256,7 @@ Per-element concurrency override. If omitted, the global
 - `swapDelay` (ms, default: `0`)
 - `settleDelay` (ms, default: `20`)
 - `requestPolicy` (`"latest-wins"` default, or `"drop"`)
+- `requestTimeout` (ms, default: `0`; `py-timeout` overrides it per element)
 
 Runtime defaults are read for each accepted request. An element's explicit
 `py-swap` continues to override `defaultSwapStyle`; otherwise, changing
@@ -478,3 +479,19 @@ The demo includes:
 ## License
 
 MIT (see [LICENSE](LICENSE)).
+
+## Request deadlines
+
+Set `py-timeout="2000"` for a two-second Python response deadline. The global
+`requestTimeout` default is `0` (no deadline). Values are milliseconds from
+0 to 2147483647. A timeout emits `py:error` with `detail.phase="timeout"` and
+`error.name="TimeoutError"`. The loading indicator stops, and a late response
+cannot change the page. A late Python failure still emits `py:error` with
+`detail.expired=true`.
+
+A deadline does not cancel Python work or retry the call. Under `drop`, the
+scope stays locked until Python finishes. Show the timeout message and let the
+application check the operation's result before another attempt. If Python
+never returns, the lock remains until the page is reloaded; reloading does not
+prove that the operation was cancelled. Use `latest-wins` for independent read
+operations that can safely run again.

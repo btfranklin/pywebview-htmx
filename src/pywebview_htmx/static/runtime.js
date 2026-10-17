@@ -6,6 +6,7 @@
     swapDelay: 0,
     settleDelay: 20,
     requestPolicy: "latest-wins",
+    requestTimeout: 0,
   };
   const selfRequestState = new WeakMap();
   const targetedRequestState = new Map();
@@ -198,6 +199,14 @@
     return false;
   }
 
+  function getDuration(element, attribute, fallback) {
+    const value = Number(element.getAttribute(attribute) ?? fallback);
+    if (!Number.isFinite(value) || value < 0 || value > 2147483647) {
+      throw new Error(`PyWebview HTMX: ${attribute} must be between 0 and 2147483647 ms`);
+    }
+    return value;
+  }
+
   function getRequestPolicy(element) {
     const policy = element.getAttribute("py-policy") || config.requestPolicy;
     if (policy === "drop" || policy === "latest-wins") {
@@ -261,8 +270,10 @@
         }
 
         let params;
+        let timeout;
         try {
           params = buildRequestParams(element, eventName, event);
+          timeout = getDuration(element, "py-timeout", config.requestTimeout);
         } catch (error) {
           reportError(element, error, { phase: "params" });
           return;
@@ -288,10 +299,28 @@
         const swapStyle = element.getAttribute("py-swap") || config.defaultSwapStyle;
         const waitTarget = getWaitTarget(element);
         addWaiting(waitTarget);
+        let waiting = true;
+        const finishWaiting = () => {
+          if (waiting) {
+            waiting = false;
+            removeWaiting(waitTarget);
+          }
+        };
+        let expired = false;
+        const timer = timeout > 0 ? setTimeout(() => {
+          expired = true;
+          finishWaiting();
+          const error = new Error(`Python response timed out after ${timeout} ms; work may still be running`);
+          error.name = "TimeoutError";
+          reportError(element, error, {
+            phase: "timeout", requestId, stale: requestId !== state.lastIssued,
+          });
+        }, timeout) : null;
 
         try {
           const response = await invokePython(functionName, params);
-          if (requestId !== state.lastIssued) {
+          clearTimeout(timer);
+          if (expired || requestId !== state.lastIssued) {
             return;
           }
           if (typeof response !== "string") {
@@ -332,12 +361,14 @@
         } catch (error) {
           reportError(element, error, {
             requestId,
+            expired,
             stale: requestId !== state.lastIssued,
           });
         } finally {
+          clearTimeout(timer);
           state.inFlightCount = Math.max(0, state.inFlightCount - 1);
           releaseRequestScope(scope);
-          removeWaiting(waitTarget);
+          finishWaiting();
         }
       });
     });

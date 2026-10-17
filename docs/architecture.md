@@ -54,6 +54,9 @@ same pass when each surface is affected.
   so state survives replacement of the matching node; self-targeted controls
   scope state to the triggering element. Selector state exists only while
   requests are in flight.
+- Response deadlines clear visible waiting but retain request scope state until
+  Python settles. Expired responses never swap. Deadlines do not cancel or retry
+  Python operations.
 - `py-wait` and runtime defaults are resolved for each accepted request. Shared
   wait elements keep a separate in-flight count for `.py-waiting`.
   Loading styles do not block pointer input; request policy controls acceptance.
