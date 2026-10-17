@@ -1281,3 +1281,94 @@ def test_invalid_timing_does_not_start_python(
     runtime_browser.expect_console_error(f"{attribute} must be between")
     page.locator("#load").click()
     assert page.evaluate("bridgeCalls") == []
+
+
+def test_keyboard_can_activate_a_replaced_button_again(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<button id="replace" py-call="load" py-swap="outerHTML">Original</button>',
+        js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate("""() => {
+      window.calls = 0;
+      window.pywebview = {api: {load: () => {
+        calls++;
+        return '<button id="replace" py-call="load" py-swap="outerHTML">' +
+          calls + '</button>';
+      }}};
+    }""")
+    runtime_browser.process()
+    page.locator("#replace").focus()
+    page.keyboard.press("Enter")
+    page.wait_for_function(
+        "document.activeElement.id === 'replace' && "
+        "document.activeElement.textContent === '1'"
+    )
+    page.keyboard.press("Enter")
+    page.wait_for_function(
+        "document.activeElement.id === 'replace' && "
+        "document.activeElement.textContent === '2'"
+    )
+    assert page.evaluate("calls") == 2
+
+
+@pytest.mark.parametrize("style", ["innerHTML", "outerHTML"])
+def test_replacement_restores_input_selection_without_scrolling(
+    runtime_browser: RuntimeBrowser, js_source: str, style: str,
+) -> None:
+    runtime_browser.load(
+        f'<form id="form" py-call="load" py-trigger="submit" py-swap="{style}">'
+        '<input id="edit" name="text" value="abcdef"><button>Save</button></form>'
+        '<div style="height:2000px"></div>', js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.locator("#edit").focus()
+    page.locator("#edit").evaluate("node => node.setSelectionRange(2, 5, 'backward')")
+    page.locator("#form").evaluate("node => node.requestSubmit()")
+    page.evaluate("window.scrollTo(0, 300)")
+    scroll = page.evaluate("window.scrollY")
+    replacement = '<input id="edit" name="text" value="abc">'
+    if style == "outerHTML":
+        replacement = f'<form id="form">{replacement}</form>'
+    resolve_request(page, 0, replacement)
+    page.wait_for_function("document.activeElement.id === 'edit'")
+    assert page.locator("#edit").evaluate(
+        "node => [node.selectionStart, node.selectionEnd, node.selectionDirection]"
+    ) == [2, 3, "backward"]
+    page.evaluate("""() => new Promise(resolve =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve)))""")
+    assert page.evaluate("window.scrollY") == scroll
+
+
+@pytest.mark.parametrize("move_focus", ["during-request", "after-swap", "removed"])
+def test_replacement_does_not_guess_or_take_focus(
+    runtime_browser: RuntimeBrowser, js_source: str, move_focus: str,
+) -> None:
+    runtime_browser.load(
+        '<form id="form" py-call="load" py-trigger="submit">'
+        '<input id="edit"><button>Save</button></form><input id="outside">',
+        js_source,
+    )
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    runtime_browser.process()
+    page.locator("#edit").focus()
+    page.locator("#form").evaluate("node => node.requestSubmit()")
+    if move_focus == "during-request":
+        page.locator("#outside").focus()
+    elif move_focus == "after-swap":
+        page.evaluate("""document.addEventListener('py:afterSwap', () => {
+          document.querySelector('#outside').focus();
+        }, {once: true})""")
+    resolve_request(
+        page, 0, '<p>removed</p>' if move_focus == "removed" else '<input id="edit">',
+    )
+    if move_focus == "removed":
+        assert page.evaluate("document.activeElement.tagName") == "BODY"
+    else:
+        assert page.evaluate("document.activeElement.id") == "outside"
+

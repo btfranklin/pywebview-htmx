@@ -75,6 +75,9 @@ same pass when each surface is affected.
 - Bundled component styling uses only the canonical `.pyh-*` class surface.
 - `py-swap="outerHTML"` replacements must preserve any selector or `id` that
   future interactions still target.
+- Destructive swaps restore focus and supported text selection by stable ID.
+  Focus is captured immediately before mutation. Explicit focus changes by
+  lifecycle listeners take precedence.
 - Only inserted subtrees are processed after append and outer replacement.
   Existing siblings are not scanned again. Native HTML parsing is preserved.
 - Swapped content is re-processed automatically. Manual DOM insertion still

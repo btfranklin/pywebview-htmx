@@ -518,3 +518,16 @@ call while detached. Waiting state and request policy start when the call is
 sent, not while its timer is pending. `drop` can still reject that call if
 another operation is running; use `latest-wins` for live read results. The delay
 does not cancel Python work that has already started.
+
+## Focus after replacement
+
+Give controls stable, unique IDs. When a destructive swap removes the focused
+control, the runtime focuses the inserted control with the same ID without
+scrolling the page. Text inputs and textareas also retain their selection,
+limited to the replacement value's length.
+
+Focus is read immediately before the swap. Moving to a control outside the
+updated region during a request is respected. A lifecycle listener that sets
+focus after the swap also takes precedence. Append operations do not change
+focus. If no matching control is inserted, the runtime does not guess a new
+focus target.

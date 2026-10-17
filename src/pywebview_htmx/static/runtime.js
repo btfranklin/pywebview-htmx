@@ -44,6 +44,55 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
+  function captureFocus(target, swapStyle) {
+    const active = document.activeElement;
+    if (swapStyle === "append" || !active?.id || !target.contains(active)) return null;
+    const scroll = [];
+    for (let parent = active.parentElement; parent; parent = parent.parentElement) {
+      scroll.push({ element: parent, left: parent.scrollLeft, top: parent.scrollTop });
+    }
+    return {
+      scroll,
+      left: window.scrollX,
+      top: window.scrollY,
+      element: active,
+      id: active.id,
+      start: active.selectionStart,
+      end: active.selectionEnd,
+      direction: active.selectionDirection,
+    };
+  }
+
+  function restoreFocus(snapshot, insertedNodes) {
+    if (!snapshot || snapshot.element.isConnected) return;
+    const active = document.activeElement;
+    if (active && active !== document.body && active !== document.documentElement) return;
+    const selector = `#${CSS.escape(snapshot.id)}`;
+    let replacement;
+    for (const node of insertedNodes) {
+      if (node.nodeType !== Node.ELEMENT_NODE || !node.isConnected) continue;
+      replacement = node.id === snapshot.id ? node : node.querySelector(selector);
+      if (replacement) break;
+    }
+    if (!replacement || typeof replacement.focus !== "function") return;
+    // Wait for layout so WebKit does not scroll to the replaced control.
+    requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (!replacement.isConnected || snapshot.element.isConnected ||
+          (active && active !== document.body && active !== document.documentElement)) return;
+      replacement.focus({ preventScroll: true });
+      if (typeof snapshot.start === "number" && typeof replacement.selectionStart === "number") {
+        replacement.setSelectionRange(snapshot.start, snapshot.end, snapshot.direction);
+      }
+      for (const position of snapshot.scroll) {
+        if (position.element.isConnected) {
+          position.element.scrollTo({ left: position.left, top: position.top, behavior: "instant" });
+        }
+      }
+      window.scrollTo({ left: snapshot.left, top: snapshot.top, behavior: "instant" });
+    });
+  }
+
   function collectInsertedNodes(parent, previous, next, insertedNodes) {
     let node = previous ? previous.nextSibling : parent.firstChild;
     while (node && node !== next) {
@@ -334,6 +383,7 @@
             return;
           }
 
+          const focus = captureFocus(target, swapStyle);
           const insertedNodes = [];
           const processRoot = pySwap(target, response, swapStyle, insertedNodes);
           const afterSwapTarget =
@@ -342,6 +392,7 @@
               : target;
           triggerEvent(afterSwapTarget, "py:afterSwap", { response, requestId });
           insertedNodes.forEach(processPyWebviewHtmxNodes);
+          restoreFocus(focus, insertedNodes);
 
           if (config.settleDelay > 0) {
             await delay(config.settleDelay);
