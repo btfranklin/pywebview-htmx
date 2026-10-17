@@ -1135,3 +1135,76 @@ def test_deadline_timer_is_removed_after_success(
     page.locator("#load").click()
     page.wait_for_timeout(60)
     assert page.locator("#load").inner_text() == "done"
+
+
+def test_append_binding_work_grows_only_with_inserted_content(
+    runtime_browser: RuntimeBrowser, js_source: str,
+) -> None:
+    runtime_browser.load(
+        '<button id="load" py-call="load" py-target="#result" '
+        'py-swap="append">Add</button><div id="result"></div>', js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate("""() => {
+      window.calls = 0;
+      window.pywebview = {api: {
+        load: () => '<section><button py-call="ping">New</button></section>',
+        ping: () => { calls++; return 'done'; },
+      }};
+    }""")
+    runtime_browser.process()
+    result = page.evaluate("""async () => {
+      let visits = 0;
+      const original = Element.prototype.querySelectorAll;
+      Element.prototype.querySelectorAll = function(selector) {
+        const nodes = original.call(this, selector);
+        if (selector === '[py-call]') visits += nodes.length;
+        return nodes;
+      };
+      try {
+        for (let i = 0; i < 1000; i++) {
+          const swapped = new Promise(resolve => {
+            document.addEventListener('py:afterSwap', resolve, {once: true});
+          });
+          document.querySelector('#load').click();
+          await swapped;
+        }
+        return {visits, rows: document.querySelector('#result').children.length};
+      } finally {
+        Element.prototype.querySelectorAll = original;
+      }
+    }""")
+    assert result == {"visits": 1000, "rows": 1000}
+    page.locator("#result button").last.click()
+    assert page.evaluate("calls") == 1
+
+
+@pytest.mark.parametrize("style", ["append", "outerHTML"])
+def test_inserted_table_rows_bind_without_scanning_existing_siblings(
+    runtime_browser: RuntimeBrowser, js_source: str, style: str,
+) -> None:
+    target = "#rows" if style == "append" else "#row"
+    runtime_browser.load(
+        f'<button id="load" py-call="load" py-target="{target}" '
+        f'py-swap="{style}">Load</button><table><tbody id="rows">'
+        '<tr id="old"><td><button py-call="ping">Old</button></td></tr>'
+        '<tr id="row"><td>Replace</td></tr></tbody></table>', js_source,
+    )
+    page = runtime_browser.page
+    page.evaluate("""() => {
+      window.calls = 0;
+      window.pywebview = {api: {
+        load: () => '<tr><td><button id="one" py-call="ping">One</button></td></tr>' +
+                    '<tr><td><button id="two" py-call="ping">Two</button></td></tr>',
+        ping: () => { calls++; return 'done'; },
+      }};
+      document.querySelector('#old').querySelectorAll = () => {
+        throw new Error('Existing sibling was scanned');
+      };
+    }""")
+    runtime_browser.process()
+    page.locator("#load").click()
+    page.locator("#one").click()
+    page.locator("#two").click()
+    assert page.evaluate("calls") == 2
+    assert page.locator("#rows > tr").count() == (4 if style == "append" else 3)

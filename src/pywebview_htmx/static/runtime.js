@@ -44,21 +44,33 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function pySwap(target, content, swapStyle = config.defaultSwapStyle) {
+  function collectInsertedNodes(parent, previous, next, insertedNodes) {
+    let node = previous ? previous.nextSibling : parent.firstChild;
+    while (node && node !== next) {
+      insertedNodes.push(node);
+      node = node.nextSibling;
+    }
+  }
+
+  function pySwap(target, content, swapStyle = config.defaultSwapStyle, insertedNodes = []) {
     switch (swapStyle) {
-      case "innerHTML":
-        target.innerHTML = content;
-        return target;
       case "outerHTML": {
         const parent = target.parentElement || document.body;
+        const previous = target.previousSibling;
+        const next = target.nextSibling;
         target.outerHTML = content;
+        collectInsertedNodes(parent, previous, next, insertedNodes);
         return parent;
       }
-      case "append":
+      case "append": {
+        const previous = target.lastChild;
         target.insertAdjacentHTML("beforeend", content);
+        collectInsertedNodes(target, previous, null, insertedNodes);
         return target;
+      }
       default:
         target.innerHTML = content;
+        insertedNodes.push(target);
         return target;
     }
   }
@@ -224,7 +236,7 @@
     if (root.matches && root.matches("[py-call]")) {
       elements.push(root);
     }
-    elements.push(...root.querySelectorAll("[py-call]"));
+    root.querySelectorAll("[py-call]").forEach(element => elements.push(element));
 
     elements.forEach((element) => {
       if (boundElements.has(element)) {
@@ -347,13 +359,14 @@
             return;
           }
 
-          const processRoot = pySwap(target, response, swapStyle);
+          const insertedNodes = [];
+          const processRoot = pySwap(target, response, swapStyle, insertedNodes);
           const afterSwapTarget =
             swapStyle === "outerHTML"
               ? (targetSelector ? $(targetSelector) || processRoot : processRoot)
               : target;
           triggerEvent(afterSwapTarget, "py:afterSwap", { response, requestId });
-          processPyWebviewHtmxNodes(processRoot);
+          insertedNodes.forEach(processPyWebviewHtmxNodes);
 
           if (config.settleDelay > 0) {
             await delay(config.settleDelay);

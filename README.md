@@ -353,8 +353,8 @@ A call made before the bridge is available emits `py:error`. It is not queued.
 
 ## Dynamic Content Re-processing
 
-After a swap, `pywebview-htmx` automatically scans swapped content for new `py-call`
-elements and binds them. This enables chained interactions in returned fragments
+After a swap, `pywebview-htmx` binds controls in the inserted content. Append
+and outer replacement do not scan existing siblings again. This enables chained interactions in returned fragments
 without manual re-init code.
 
 ## Theme System
