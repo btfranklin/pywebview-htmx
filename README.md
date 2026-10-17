@@ -47,7 +47,9 @@ pdm add pywebview-htmx
 ## Maintainer Docs
 
 For maintainer and agent-facing repository guidance, see
-[`docs/index.md`](docs/index.md).
+[`docs/index.md`](docs/index.md). Run `pdm run check` for lint, tests, and
+offline documentation checks. The documentation check requires the native
+`perfect-doc` executable and can run alone with `pdm run check-docs`.
 
 ## Agent Skill
 
@@ -213,7 +215,7 @@ JSON payload passed to Python method.
 
 Notes:
 - If missing, params default to `{}`.
-- Invalid JSON logs an error and falls back to `{}`.
+- Invalid JSON or a value that is not an object emits `py:error`. Python is not called.
 - For submit-triggered forms, named form fields are serialized automatically and
   merged over this payload.
 

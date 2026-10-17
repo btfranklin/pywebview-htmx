@@ -33,6 +33,12 @@
     return event;
   }
 
+  function reportError(element, error, detail = {}) {
+    console.error("PyWebview HTMX: request failed", error);
+    const target = element.isConnected ? element : document.body || document;
+    triggerEvent(target, "py:error", { element, error, stale: false, ...detail });
+  }
+
   function delay(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -58,13 +64,17 @@
 
   function parseParams(element) {
     const raw = element.getAttribute("data-py-params");
-    if (!raw) return {};
+    if (raw === null) return {};
+    let params;
     try {
-      return JSON.parse(raw);
+      params = JSON.parse(raw);
     } catch (error) {
-      console.error("PyWebview HTMX: invalid JSON in data-py-params", error);
-      return {};
+      throw new Error("PyWebview HTMX: invalid JSON in data-py-params", { cause: error });
     }
+    if (params === null || typeof params !== "object" || Array.isArray(params)) {
+      throw new Error("PyWebview HTMX: data-py-params must contain a JSON object");
+    }
+    return params;
   }
 
   function mergeParamValue(target, key, value) {
@@ -250,7 +260,13 @@
           event.preventDefault();
         }
 
-        const params = buildRequestParams(element, eventName, event);
+        let params;
+        try {
+          params = buildRequestParams(element, eventName, event);
+        } catch (error) {
+          reportError(element, error, { phase: "params" });
+          return;
+        }
         const scope = getRequestScope(element, targetSelector);
         const state = scope.state;
         const requestPolicy = getRequestPolicy(element);
@@ -314,11 +330,7 @@
             await delay(config.settleDelay);
           }
         } catch (error) {
-          console.error("PyWebview HTMX: error calling Python function", error);
-          const errorTarget = element.isConnected ? element : document.body || document;
-          triggerEvent(errorTarget, "py:error", {
-            element,
-            error,
+          reportError(element, error, {
             requestId,
             stale: requestId !== state.lastIssued,
           });

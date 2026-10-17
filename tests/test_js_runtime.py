@@ -817,7 +817,7 @@ def test_bridge_failures_emit_errors(
     assert page.evaluate("window.errors") == [{"message": expected, "stale": False}]
 
 
-def test_invalid_params_and_selectors_degrade_safely(
+def test_invalid_params_stop_calls_and_invalid_selectors_remain_safe(
     runtime_browser: RuntimeBrowser,
     js_source: str,
 ) -> None:
@@ -851,8 +851,8 @@ def test_invalid_params_and_selectors_degrade_safely(
     runtime_browser.expect_console_error("invalid JSON in data-py-params")
 
     page.locator("#invalid-json").click()
-    page.wait_for_function("window.calls.length === 1")
-    assert page.evaluate("window.calls[0]") == {}
+    assert page.evaluate("window.calls") == []
+    assert page.locator("#invalid-json").inner_text() == "JSON"
 
     page.locator("#invalid-target").click()
     page.wait_for_timeout(20)
@@ -997,3 +997,43 @@ def test_injected_runtime_binds_controls_on_document_load(
     assert page.evaluate("bridgeCalls") == [{}]
     resolve_request(page, 0, "ready")
     page.locator("#result").get_by_text("ready").wait_for()
+
+
+@pytest.mark.parametrize("raw", ["", " ", "{", "null", "[]", "1", '"text"', "true"])
+@pytest.mark.parametrize("form", [False, True])
+def test_invalid_params_never_call_python(
+    runtime_browser: RuntimeBrowser, js_source: str, raw: str, form: bool,
+) -> None:
+    markup = (
+        '<form id="control" py-call="load" py-trigger="submit">'
+        '<input name="message" value="hello"><button>Save</button></form>'
+        if form else '<button id="control" py-call="load">Save</button>'
+    )
+    runtime_browser.load(markup, js_source)
+    page = runtime_browser.page
+    install_pending_bridge(page)
+    page.locator("#control").evaluate(
+        "(node, raw) => node.setAttribute('data-py-params', raw)", raw,
+    )
+    page.evaluate("""() => {
+      window.errors = [];
+      document.addEventListener('py:error', e => errors.push({
+        phase: e.detail.phase, stale: e.detail.stale,
+        element: e.detail.element.id,
+      }));
+    }""")
+    runtime_browser.process()
+    runtime_browser.expect_console_error(
+        "invalid JSON" if raw in ("", " ", "{") else "must contain a JSON object"
+    )
+    if form:
+        page.locator("#control button").click()
+    else:
+        page.locator("#control").click()
+    assert page.evaluate("bridgeCalls") == []
+    assert page.evaluate("errors") == [
+        {"phase": "params", "stale": False, "element": "control"}
+    ]
+    assert not page.locator("#control").evaluate(
+        "node => node.classList.contains('py-waiting')"
+    )

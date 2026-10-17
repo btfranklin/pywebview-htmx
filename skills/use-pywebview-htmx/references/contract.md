@@ -55,7 +55,7 @@ A label that contains its control calls Python once per activation.
 ## Params contract
 
 - Missing `data-py-params` becomes `{}`.
-- Invalid JSON logs an error and becomes `{}`.
+- Invalid JSON or a value that is not an object emits `py:error`. Python is not called.
 - `<form py-trigger="submit">` serializes named fields automatically.
 - Form values merge over any static `data-py-params`.
 - Repeated form field names accumulate into arrays.

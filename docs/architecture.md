@@ -45,7 +45,8 @@ same pass when each surface is affected.
 - Python API handlers exposed through `js_api` must return HTML strings.
 - Returned fragments are inserted directly into the DOM. Escape or sanitize
   untrusted data before interpolating it into markup.
-- `data-py-params` is JSON for ordinary elements. Submit-triggered forms merge
+- `data-py-params` is a JSON object. Invalid input emits `py:error` before
+  calling Python. Submit-triggered forms merge
   named field values over static params.
 - `py-target` selects the swap target. If omitted, the triggering element is
   updated.

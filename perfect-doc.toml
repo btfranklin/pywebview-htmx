@@ -1,0 +1,14 @@
+include = ["**/*.md"]
+exclude = ["**/.git/**", "**/.venv/**", "**/.pytest_cache/**", "**/dist/**", "**/.pdm-build/**"]
+
+[markdown]
+dialect = "gfm"
+anchors = "github"
+
+[links]
+index_files = ["index.md", "README.md", "SKILL.md", "index.html"]
+allow_outside_root = false
+strict_case = true
+
+[network]
+enabled = false

@@ -439,7 +439,7 @@ html_content = """
 
       <section class="pyh-card">
         <h3>6) Params parsing behavior</h3>
-        <p class="pyh-muted">Second button has intentionally invalid JSON and should fallback to <code>{}</code>.</p>
+        <p class="pyh-muted">The second button has invalid JSON. It reports an error without calling Python.</p>
         <div class="pyh-row">
           <button
             class="pyh-btn pyh-btn-secondary"

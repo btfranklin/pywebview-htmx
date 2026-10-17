@@ -29,6 +29,8 @@ before the failure. Stale request failures are still emitted.
 
 Common causes:
 
+- `data-py-params` is invalid JSON or is not an object; Python is not called
+
 - Python handler returned a non-string value
 - `window.pywebview.api` was unavailable
 - `py-call` referenced a missing method
