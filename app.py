@@ -54,7 +54,9 @@ class API:
                 dedent(
                     f"""
                     <button
+                      id="theme-{theme_name}"
                       class="{button_class}"
+                      aria-pressed="{'true' if theme_name == active_theme else 'false'}"
                       py-call="switch_theme"
                       py-target="#theme-picker"
                       py-swap="outerHTML"
@@ -71,18 +73,12 @@ class API:
             f"""
             <section id="theme-picker" class="pyh-card">
               <style data-pywebview-theme="{active_theme}">{css}</style>
-              <h2>Theme Picker (Python-backed)</h2>
-              <p class="pyh-muted">
-                These buttons call Python and swap this entire section. The returned
-                HTML includes a new <code>&lt;style data-pywebview-theme=...&gt;</code>
-                block, so the live UI theme changes immediately.
-              </p>
+              <h2>Theme</h2>
               <div class="pyh-row">
                 {buttons_markup}
               </div>
-              <p class="pyh-muted">
-                Active theme from Python response:
-                <strong>{active_theme}</strong>
+              <p class="pyh-muted" data-demo-status role="status" aria-live="polite">
+                Current theme: <strong>{active_theme}</strong>
               </p>
             </section>
             """,
@@ -142,15 +138,15 @@ class API:
 
         return dedent(
             f"""
-            <section id="replaceable-card" class="pyh-card {tone_class}">
-              <h3>OuterHTML Replacement</h3>
+            <section id="replaceable-card" class="pyh-card {tone_class} demo-example" data-demo-example>
+              <h3>Replace a card</h3>
               <p>
-                This whole card was replaced using
-                <code>py-swap="outerHTML"</code>.
+                This card was replaced. Its action is ready again.
               </p>
               <p class="pyh-muted">Panel version: {panel_version}</p>
               <div class="pyh-row">
                 <button
+                  id="replace-panel-button"
                   class="pyh-btn pyh-btn-secondary"
                   py-call="replace_panel"
                   py-target="#replaceable-card"
@@ -166,6 +162,8 @@ class API:
                   Nested Callback
                 </button>
               </div>
+              <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Request complete.</p>
+              <details><summary>Implementation</summary><p>The response keeps the button ID for focus restoration.</p></details>
             </section>
             """
         ).strip()
@@ -193,6 +191,7 @@ class API:
         return dedent(
             f"""
             <button
+              id="morph-button"
               class="pyh-btn pyh-btn-primary pyh-full-width"
               py-call="morph_button"
               py-swap="outerHTML"
@@ -295,53 +294,26 @@ html_content = """
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PyWebview HTMX Feature Showcase</title>
+  <title>PyWebview HTMX Demo</title>
 </head>
 <body>
   <main class="pyh-shell">
     <header class="pyh-hero">
-      <h1>PyWebview HTMX Feature Showcase</h1>
+      <h1>PyWebview HTMX</h1>
       <p>
-        This demo intentionally exercises many PyWebview HTMX capabilities: trigger types,
-        parameter payloads, swap modes (<code>innerHTML</code>,
-        <code>append</code>, <code>outerHTML</code>), wait targets,
-        concurrency policy, lifecycle events, and re-processing swapped fragments.
+        Small examples show Python calls, HTML swaps, forms, and request behavior.
       </p>
-      <div class="pyh-badge-row">
-        <span class="pyh-chip">Live theme switch uses a Python API call</span>
-        <span class="pyh-chip">Theme CSS is shipped in the PyWebview HTMX package</span>
-        <span class="pyh-chip">Styling system: CSS tokens</span>
-        <span class="pyh-chip">Reusable components: card, button, field</span>
-        <span class="pyh-chip">Utilities: grid, spacing, full-width</span>
-      </div>
     </header>
 
     __THEME_PICKER__
 
-    <section class="pyh-card">
-      <h2>Runtime Controls + Event Feed</h2>
-      <p class="pyh-muted">
-        Toggle request behavior and timing live. Event logs show
-        <code>py:trigger</code>, <code>py:beforeSwap</code>,
-        <code>py:afterSwap</code>, <code>py:ignored</code>, and
-        <code>py:error</code>.
-      </p>
-      <div class="pyh-inline-config">
-        <label><input type="radio" name="policy" value="latest-wins" checked>latest-wins</label>
-        <label><input type="radio" name="policy" value="drop">drop while in-flight</label>
-        <label>swapDelay <input id="swap-delay" type="range" min="0" max="900" step="100" value="0"></label>
-        <label>settleDelay <input id="settle-delay" type="range" min="0" max="600" step="100" value="20"></label>
-      </div>
-      <p id="config-state" class="pyh-muted">config state pending...</p>
-      <ol id="event-log" class="pyh-event-log"></ol>
-    </section>
-
     <div class="pyh-grid">
-      <section class="pyh-card">
-        <h3>1) Basic call + wait target + innerHTML</h3>
-        <p class="pyh-muted">Uses <code>py-call</code>, <code>py-target</code>, <code>data-py-params</code>, and <code>py-wait</code>.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>1) Basic call</h3>
+        <p class="pyh-muted">Call Python and show its response here.</p>
         <div class="pyh-row">
           <button
+            id="fetch-profile-button"
             class="pyh-btn pyh-btn-primary"
             py-call="fetch_profile"
             py-target="#profile-result"
@@ -352,14 +324,17 @@ html_content = """
           </button>
           <span id="profile-wait" class="pyh-wait-target"><span class="pyh-busy-pill"></span>loading</span>
         </div>
-        <div id="profile-result" class="pyh-note pyh-muted">Result appears here.</div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="profile-result" class="pyh-note pyh-muted" role="status" aria-live="polite">Result appears here.</div>
+        <details><summary>Implementation</summary><p>Uses <code>py-call</code>, <code>py-target</code>, <code>data-py-params</code>, and <code>py-wait</code>.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>2) Append swap strategy</h3>
-        <p class="pyh-muted">Adds list rows with <code>py-swap="append"</code>.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>2) Append activity</h3>
+        <p class="pyh-muted">Add an item to the list or clear it.</p>
         <div class="pyh-row">
           <button
+            id="append-activity-button"
             class="pyh-btn pyh-btn-secondary"
             py-call="add_activity"
             py-target="#activity-list"
@@ -368,6 +343,7 @@ html_content = """
             Append Activity
           </button>
           <button
+            id="clear-activity-button"
             class="pyh-btn pyh-btn-danger"
             py-call="clear_activity"
             py-target="#activity-list"
@@ -376,16 +352,19 @@ html_content = """
             Clear
           </button>
         </div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
         <ul id="activity-list" class="pyh-activity-list">
           <li class="pyh-muted">No activity yet.</li>
         </ul>
+        <details><summary>Implementation</summary><p>The first call uses <code>py-swap="append"</code>. The second replaces the list contents.</p></details>
       </section>
 
-      <section id="replaceable-card" class="pyh-card pyh-tone-teal">
-        <h3>3) OuterHTML swap strategy</h3>
-        <p class="pyh-muted">Replaces the entire card with a new version.</p>
+      <section id="replaceable-card" class="pyh-card pyh-tone-teal demo-example" data-demo-example>
+        <h3>3) Replace a card</h3>
+        <p class="pyh-muted">Replace this card and keep its action available.</p>
         <div class="pyh-row">
           <button
+            id="replace-panel-button"
             class="pyh-btn pyh-btn-secondary"
             py-call="replace_panel"
             py-target="#replaceable-card"
@@ -394,6 +373,7 @@ html_content = """
             Replace Panel
           </button>
           <button
+            id="nested-callback-button"
             class="pyh-btn pyh-btn-ghost"
             py-call="nested_ping"
             py-target="#replaceable-log"
@@ -401,12 +381,15 @@ html_content = """
             Nested Callback
           </button>
         </div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <details><summary>Implementation</summary><p>The first call uses <code>py-swap="outerHTML"</code>. Its response keeps the button ID for focus restoration.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>4) Self-target fallback (no py-target)</h3>
-        <p class="pyh-muted">This button swaps itself with <code>py-swap="outerHTML"</code>.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>4) Replace this button</h3>
+        <p class="pyh-muted">The response replaces the button that started the call.</p>
         <button
+          id="morph-button"
           class="pyh-btn pyh-btn-primary pyh-full-width"
           py-call="morph_button"
           py-swap="outerHTML"
@@ -414,11 +397,13 @@ html_content = """
           data-py-params='{"label": "Morph me"}'>
           Morph me
         </button>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <details><summary>Implementation</summary><p>With no <code>py-target</code>, the button is the target. Its response keeps the button ID for focus restoration.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>5) Custom trigger: form submit</h3>
-        <p class="pyh-muted">The form uses <code>py-trigger="submit"</code> and PyWebview HTMX serializes named fields automatically.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>5) Submit a form</h3>
+        <p class="pyh-muted">Send the named fields to Python.</p>
         <form
           id="echo-form"
           class="pyh-fields"
@@ -426,22 +411,27 @@ html_content = """
           py-trigger="submit"
           py-target="#echo-result"
           py-wait="#echo-form">
+          <label for="echo-message">Message</label>
           <input id="echo-message" name="message" type="text" placeholder="Type a short message">
+          <label for="echo-mood">Mood</label>
           <select id="echo-mood" name="mood">
             <option value="focused">focused</option>
             <option value="curious">curious</option>
             <option value="celebratory">celebratory</option>
           </select>
-          <button class="pyh-btn pyh-btn-primary" type="submit">Submit Form Trigger</button>
+          <button id="echo-submit-button" class="pyh-btn pyh-btn-primary" type="submit">Submit</button>
         </form>
-        <div id="echo-result" class="pyh-note pyh-muted">Form result appears here.</div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="echo-result" class="pyh-note pyh-muted" role="status" aria-live="polite">Form result appears here.</div>
+        <details><summary>Implementation</summary><p>The form uses <code>py-trigger="submit"</code>. The runtime sends named fields to Python.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>6) Params parsing behavior</h3>
-        <p class="pyh-muted">The second button has invalid JSON. It reports an error without calling Python.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>6) Validate request parameters</h3>
+        <p class="pyh-muted">The second button has invalid JSON and will show an error here.</p>
         <div class="pyh-row">
           <button
+            id="show-valid-params-button"
             class="pyh-btn pyh-btn-secondary"
             py-call="show_params"
             py-target="#params-result"
@@ -449,6 +439,7 @@ html_content = """
             Show Valid Params
           </button>
           <button
+            id="show-invalid-params-button"
             class="pyh-btn pyh-btn-danger"
             py-call="show_params"
             py-target="#params-result"
@@ -456,14 +447,17 @@ html_content = """
             Show Invalid Params
           </button>
         </div>
-        <div id="params-result" class="pyh-note pyh-muted">Parameter payload appears here.</div>
+        <p id="params-status" class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="params-result" class="pyh-note pyh-muted" role="status" aria-live="polite">Parameter payload appears here.</div>
+        <details><summary>Implementation</summary><p>Invalid parameters raise <code>py:error</code> with phase <code>params</code>. Python is not called.</p></details>
       </section>
 
-      <section class="pyh-card" id="race-card">
-        <h3>7) Concurrency policy demo</h3>
-        <p class="pyh-muted">Click slow then fast to see <code>latest-wins</code> vs <code>drop</code> behavior.</p>
+      <section class="pyh-card demo-example" id="race-card" data-demo-example>
+        <h3>7) Request timing</h3>
+        <p class="pyh-muted">Compare slow and fast calls. A timeout does not stop Python work.</p>
         <div class="pyh-row">
           <button
+            id="run-slow-button"
             class="pyh-btn pyh-btn-secondary"
             py-call="long_task"
             py-target="#race-result"
@@ -472,6 +466,7 @@ html_content = """
             Run Slow (1.6s)
           </button>
           <button
+            id="run-fast-button"
             class="pyh-btn pyh-btn-primary"
             py-call="long_task"
             py-target="#race-result"
@@ -479,16 +474,30 @@ html_content = """
             data-py-params='{"name": "fast-job", "delay": 0.4}'>
             Run Fast (0.4s)
           </button>
+          <button
+            id="run-timeout-button"
+            class="pyh-btn pyh-btn-danger"
+            py-call="long_task"
+            py-target="#race-result"
+            py-wait="#race-status"
+            py-policy="drop"
+            py-timeout="250"
+            data-py-params='{"name": "long-job", "delay": 1.2}'>
+            Run with 250 ms timeout
+          </button>
           <span id="race-status" class="pyh-wait-target"><span class="pyh-busy-pill"></span>running</span>
         </div>
-        <div id="race-result" class="pyh-note pyh-muted">Race result appears here.</div>
+        <p id="race-demo-status" class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="race-result" class="pyh-note pyh-muted" role="status" aria-live="polite">Result appears here.</div>
+        <details><summary>Implementation</summary><p>The first two calls use the selected request policy. The last uses <code>py-policy="drop"</code> and <code>py-timeout="250"</code>. A timeout reports an error. It does not cancel Python work or retry the call.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>8) Dynamic fragment re-processing</h3>
-        <p class="pyh-muted">Loads new buttons at runtime; they work immediately.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>8) Load a fragment</h3>
+        <p class="pyh-muted">Add new buttons, then use them.</p>
         <div class="pyh-row">
           <button
+            id="load-fragment-button"
             class="pyh-btn pyh-btn-ghost"
             py-call="load_fragment"
             py-target="#fragment-host"
@@ -496,13 +505,15 @@ html_content = """
             Load Fragment
           </button>
         </div>
-        <div id="fragment-host" class="pyh-note pyh-muted">Fragment goes here.</div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="fragment-host" class="pyh-note pyh-muted" role="status" aria-live="polite">Fragment goes here.</div>
         <div id="fragment-log" class="pyh-note pyh-muted">Fragment callback log.</div>
+        <details><summary>Implementation</summary><p>Swapped fragments are processed so their new buttons can call Python.</p></details>
       </section>
 
-      <section class="pyh-card">
-        <h3>9) Custom trigger: mouseenter</h3>
-        <p class="pyh-muted">Hover the dashed box to trigger a non-click event.</p>
+      <section class="pyh-card demo-example" data-demo-example>
+        <h3>9) Use a hover trigger</h3>
+        <p class="pyh-muted">Move the pointer over the box to call Python.</p>
         <div
           class="pyh-hover-target"
           py-call="hover_tip"
@@ -511,14 +522,28 @@ html_content = """
           data-py-params='{"topic": "mouse-enter trigger"}'>
           Hover this box
         </div>
-        <div id="hover-result" class="pyh-note pyh-muted">Hover result appears here.</div>
+        <p class="pyh-muted demo-status" data-demo-status role="status" aria-live="polite">Ready.</p>
+        <div id="hover-result" class="pyh-note pyh-muted" role="status" aria-live="polite">Hover result appears here.</div>
+        <details><summary>Implementation</summary><p>The box uses <code>py-trigger="mouseenter"</code> instead of a click.</p></details>
       </section>
     </div>
 
-    <section class="pyh-card">
-      <h3>OuterHTML nested callback log</h3>
-      <div id="replaceable-log" class="pyh-note pyh-muted">Outer panel callback log.</div>
-    </section>
+    <details class="pyh-card" id="runtime-diagnostics">
+      <summary>Runtime diagnostics</summary>
+      <p class="pyh-muted">Change request behavior and inspect lifecycle events.</p>
+      <div class="pyh-inline-config">
+        <label><input type="radio" name="policy" value="latest-wins" checked>latest-wins</label>
+        <label><input type="radio" name="policy" value="drop">drop while in-flight</label>
+        <label for="swap-delay">Swap delay</label>
+        <input id="swap-delay" type="range" min="0" max="900" step="100" value="0">
+        <label for="settle-delay">Settle delay</label>
+        <input id="settle-delay" type="range" min="0" max="600" step="100" value="20">
+      </div>
+      <p id="config-state" class="pyh-muted">Request settings are ready.</p>
+      <ol id="event-log" class="pyh-event-log" aria-label="Runtime events"></ol>
+      <h3>Outer card callback</h3>
+      <div id="replaceable-log" class="pyh-note pyh-muted">Callback log.</div>
+    </details>
   </main>
 
   <script>
@@ -539,6 +564,11 @@ html_content = """
         while (eventLog.children.length > 24) {
           eventLog.removeChild(eventLog.lastElementChild);
         }
+      };
+
+      const statusFor = (element) => {
+        const example = element && element.closest("[data-demo-example]");
+        return example && example.querySelector("[data-demo-status]");
       };
 
       const applyConfig = () => {
@@ -575,15 +605,35 @@ html_content = """
           eventName,
           (event) => {
             const callName = event.target.getAttribute && event.target.getAttribute("py-call");
-            const requestId = event.detail && event.detail.requestId;
+            const detail = event.detail || {};
+            const requestId = detail.requestId;
             const suffix = requestId ? " #" + requestId : "";
             const detailText = callName ? " (" + callName + ")" : "";
 
             let tone = "";
             if (eventName === "py:error") {
               tone = "pyh-error";
+              const source = detail.element;
+              const error = detail.error || {};
+              const status = statusFor(source);
+              const timedOut = detail.phase === "timeout" || error.name === "TimeoutError";
+              if (status && source && source.isConnected && !detail.stale) {
+                status.textContent = timedOut
+                  ? "Request timed out. Python may still be working; no retry was sent."
+                  : "Request failed: " + (error.message || "Unknown error");
+              }
             } else if (eventName === "py:ignored") {
               tone = "pyh-warn";
+            } else if (eventName === "py:trigger") {
+              const status = statusFor(event.target);
+              if (status) {
+                status.textContent = "Request started: " + (callName || "Python call") + ".";
+              }
+            } else if (eventName === "py:afterSwap") {
+              const status = statusFor(event.target);
+              if (status) {
+                status.textContent = "Request complete.";
+              }
             }
 
             pushEvent(
