@@ -1372,3 +1372,39 @@ def test_replacement_does_not_guess_or_take_focus(
     else:
         assert page.evaluate("document.activeElement.id") == "outside"
 
+
+@pytest.mark.parametrize("original_busy", [None, "false", "true"])
+def test_shared_wait_restores_original_aria_busy_after_error_and_timeout(
+    runtime_browser: RuntimeBrowser, js_source: str, original_busy: str | None,
+) -> None:
+    runtime_browser.load(
+        '<button id="first" py-call="load" py-timeout="20" py-wait="#status" '
+        'py-target="#result">First</button>'
+        '<button id="second" py-call="load" py-wait="#status" '
+        'py-target="#result">Second</button><span id="status"></span>'
+        '<div id="result"></div>', js_source,
+    )
+    page = runtime_browser.page
+    if original_busy is not None:
+        page.locator("#status").evaluate(
+            "(node, value) => node.setAttribute('aria-busy', value)", original_busy,
+        )
+    install_pending_bridge(page)
+    runtime_browser.process()
+    runtime_browser.expect_console_error("timed out")
+    runtime_browser.expect_console_error("failed")
+    page.evaluate("""() => {
+      window.expired = false;
+      document.addEventListener('py:error', () => { expired = true; });
+      document.querySelector('#first').click();
+      document.querySelector('#second').click();
+    }""")
+    page.wait_for_function("expired")
+    assert page.locator("#status").get_attribute("aria-busy") == "true"
+    reject_request(page, 1, "failed")
+    page.wait_for_function(
+        "!document.querySelector('#status').classList.contains('py-waiting')"
+    )
+    assert page.locator("#status").get_attribute("aria-busy") == original_busy
+    resolve_request(page, 0, "late result")
+    assert page.locator("#status").get_attribute("aria-busy") == original_busy

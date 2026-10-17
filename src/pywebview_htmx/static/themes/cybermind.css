@@ -1,4 +1,6 @@
 :root {
+  --pyh-color-scheme: dark;
+  --pyh-focus: #ffffff;
   --pyh-font-ui: "Space Grotesk", "Avenir Next", "Segoe UI", sans-serif;
   --pyh-font-headline: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
   --pyh-font-mono: "IBM Plex Mono", "SFMono-Regular", "Menlo", monospace;
@@ -41,13 +43,16 @@
   --pyh-chip-bg: rgba(255, 255, 255, 0.08);
   --pyh-chip-border: rgba(255, 255, 255, 0.14);
 
-  --pyh-btn-text: #0b1a2a;
+  --pyh-btn-text: #edf2f4;
   --pyh-btn-bg: #2b2d42;
+  --pyh-btn-primary-text: #0b1a2a;
   --pyh-btn-primary-bg: linear-gradient(130deg, #5eead4, #38bdf8);
+  --pyh-btn-secondary-text: #302000;
   --pyh-btn-secondary-bg: linear-gradient(130deg, #ffd166, #f3b634);
-  --pyh-btn-danger-bg: linear-gradient(130deg, #f85772, #c7162d);
-  --pyh-btn-ghost-bg: rgba(43, 45, 66, 0.92);
-  --pyh-btn-ghost-text: #8d99ae;
+  --pyh-btn-danger-text: #25050b;
+  --pyh-btn-danger-bg: linear-gradient(130deg, #ff7188, #f85772);
+  --pyh-btn-ghost-bg: #2b2d42;
+  --pyh-btn-ghost-text: #edf2f4;
   --pyh-btn-ghost-border: rgba(255, 255, 255, 0.08);
 
   --pyh-input-border: rgba(255, 255, 255, 0.06);

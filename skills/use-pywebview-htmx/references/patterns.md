@@ -50,8 +50,10 @@ Give each input a `name`. The runtime serializes the form automatically.
 
 ```html
 <form py-call="save_message" py-trigger="submit" py-target="#result">
-  <input name="message" type="text">
-  <select name="mood">
+  <label for="message">Message</label>
+  <input id="message" name="message" type="text">
+  <label for="mood">Mood</label>
+  <select id="mood" name="mood">
     <option value="focused">focused</option>
     <option value="curious">curious</option>
   </select>

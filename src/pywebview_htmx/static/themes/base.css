@@ -2,6 +2,10 @@
   box-sizing: border-box;
 }
 
+html {
+  color-scheme: var(--pyh-color-scheme, light);
+}
+
 html,
 body {
   margin: 0;
@@ -121,7 +125,7 @@ body {
   padding: 10px 14px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 120ms ease, filter 120ms ease;
+  transition: transform 120ms ease;
   color: var(--pyh-btn-text);
   background: var(--pyh-btn-bg);
   min-height: 40px;
@@ -129,20 +133,20 @@ body {
 
 .pyh-btn:hover {
   transform: translateY(-1px);
-  filter: brightness(1.06);
 }
 
 .pyh-btn:active {
   transform: translateY(1px);
-  filter: brightness(0.95);
 }
 
 .pyh-btn-primary {
   background: var(--pyh-btn-primary-bg);
+  color: var(--pyh-btn-primary-text);
 }
 
 .pyh-btn-secondary {
   background: var(--pyh-btn-secondary-bg);
+  color: var(--pyh-btn-secondary-text);
 }
 
 .pyh-btn-ghost {
@@ -153,6 +157,24 @@ body {
 
 .pyh-btn-danger {
   background: var(--pyh-btn-danger-bg);
+  color: var(--pyh-btn-danger-text);
+}
+
+.pyh-btn:focus-visible,
+.pyh-fields input:focus-visible,
+.pyh-fields select:focus-visible,
+.pyh-fields textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--pyh-focus);
+  outline-offset: 3px;
+}
+
+.pyh-btn:disabled,
+.pyh-fields input:disabled,
+.pyh-fields select:disabled,
+.pyh-fields textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .pyh-full-width {
@@ -165,7 +187,8 @@ body {
 }
 
 .pyh-fields input,
-.pyh-fields select {
+.pyh-fields select,
+.pyh-fields textarea {
   width: 100%;
   border-radius: var(--pyh-radius-sm);
   border: 1px solid var(--pyh-input-border);
@@ -174,6 +197,11 @@ body {
   padding: 10px 12px;
   min-height: 38px;
   font: inherit;
+}
+
+.pyh-fields textarea {
+  min-height: 6rem;
+  resize: vertical;
 }
 
 .pyh-fields input::placeholder {
@@ -257,7 +285,7 @@ body {
 }
 
 .py-waiting {
-  opacity: 0.88;
+  cursor: progress;
 }
 
 .pyh-event-log {
@@ -317,6 +345,21 @@ body {
 @keyframes pyh-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pyh-btn {
+    transition-duration: 0.01ms;
+  }
+
+  .pyh-btn:hover,
+  .pyh-btn:active {
+    transform: none;
+  }
+
+  .pyh-busy-pill {
+    animation: none;
   }
 }
 

@@ -531,3 +531,20 @@ updated region during a request is respected. A lifecycle listener that sets
 focus after the swap also takes precedence. Append operations do not change
 focus. If no matching control is inserted, the runtime does not guess a new
 focus target.
+
+## Accessible loading and theme states
+
+While a request is waiting, its wait element has `aria-busy="true"` and
+`.py-waiting`. Shared wait elements remain busy until all visible waits finish
+or time out. The runtime then restores the element's original `aria-busy`
+value, or removes the attribute if it was absent. It does not add live regions
+to application content. Use `role="status"` on a short result or status message
+when an announcement is useful.
+
+Bundled themes provide readable text for each button variant, visible keyboard
+focus, and the matching light or dark color scheme for native controls.
+Reduced-motion settings remove button movement and spinner animation while
+keeping the busy marker visible. Custom theme authors should define
+`--pyh-focus`, `--pyh-color-scheme`, and the `--pyh-btn-primary-text`,
+`--pyh-btn-secondary-text`, and `--pyh-btn-danger-text` tokens along with the
+existing colors.

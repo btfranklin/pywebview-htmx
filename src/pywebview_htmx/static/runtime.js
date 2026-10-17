@@ -225,19 +225,26 @@
   }
 
   function addWaiting(waitTarget) {
-    const count = (waitState.get(waitTarget) || 0) + 1;
-    waitState.set(waitTarget, count);
+    let state = waitState.get(waitTarget);
+    if (!state) {
+      state = { count: 0, previousBusy: waitTarget.getAttribute("aria-busy") };
+      waitState.set(waitTarget, state);
+    }
+    state.count += 1;
     waitTarget.classList.add("py-waiting");
+    waitTarget.setAttribute("aria-busy", "true");
   }
 
   function removeWaiting(waitTarget) {
-    const count = Math.max(0, (waitState.get(waitTarget) || 0) - 1);
-    if (count === 0) {
+    const state = waitState.get(waitTarget);
+    if (!state) return;
+    state.count -= 1;
+    if (state.count === 0) {
       waitState.delete(waitTarget);
       waitTarget.classList.remove("py-waiting");
-      return;
+      if (state.previousBusy === null) waitTarget.removeAttribute("aria-busy");
+      else waitTarget.setAttribute("aria-busy", state.previousBusy);
     }
-    waitState.set(waitTarget, count);
   }
 
   function shouldPreventDefault(element, eventName) {

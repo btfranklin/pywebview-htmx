@@ -1,4 +1,6 @@
 :root {
+  --pyh-color-scheme: dark;
+  --pyh-focus: #ffffff;
   --pyh-font-ui: "Avenir Next", "Trebuchet MS", "Segoe UI", sans-serif;
   --pyh-font-headline: "Gill Sans", "Trebuchet MS", sans-serif;
   --pyh-font-mono: "SFMono-Regular", "Menlo", "Consolas", monospace;
@@ -38,10 +40,13 @@
 
   --pyh-btn-text: #0a1d2d;
   --pyh-btn-bg: #dce8f1;
+  --pyh-btn-primary-text: #0a1d2d;
   --pyh-btn-primary-bg: linear-gradient(130deg, #79ffd3, #55e1b8);
+  --pyh-btn-secondary-text: #0a1d2d;
   --pyh-btn-secondary-bg: linear-gradient(130deg, #ffd899, #f7ba54);
+  --pyh-btn-danger-text: #0a1d2d;
   --pyh-btn-danger-bg: linear-gradient(130deg, #ffb8b8, #ef6f6f);
-  --pyh-btn-ghost-bg: rgba(255, 255, 255, 0.12);
+  --pyh-btn-ghost-bg: #102c40;
   --pyh-btn-ghost-text: #f4f8fb;
   --pyh-btn-ghost-border: rgba(255, 255, 255, 0.28);
 

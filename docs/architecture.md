@@ -59,7 +59,8 @@ same pass when each surface is affected.
   Python operations.
 - `py-wait` and runtime defaults are resolved for each accepted request. Shared
   wait elements keep a separate in-flight count for `.py-waiting`.
-  Loading styles do not block pointer input; request policy controls acceptance.
+  Wait elements receive `aria-busy="true"`; the original attribute value is
+  restored after all visible waits finish. Loading styles do not block pointer input; request policy controls acceptance.
 - Native navigation, submission, and reset defaults are prevented when the
   runtime handles those destructive actions. Checkbox, radio, label, and
   ordinary button defaults remain intact.
