@@ -73,9 +73,13 @@ jobs:
               if: runner.os == 'Linux'
               run: |
                   sudo apt-get update
-                  sudo apt-get install -y xvfb libegl1 libopengl0 libxcb-cursor0 libxkbcommon-x11-0 libnss3 libasound2t64
+                  sudo apt-get install -y xvfb libegl1 libopengl0 libnss3 libasound2t64 \
+                      libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 \
+                      libxcb-xinerama0 libxkbcommon-x11-0
             - name: Check installed wheel in Linux Qt
               if: runner.os == 'Linux'
+              env:
+                  QT_DEBUG_PLUGINS: '1'
               run: xvfb-run -a python scripts/check_distribution.py dist --native
             - name: Check installed wheel in native desktop renderer
               if: runner.os != 'Linux'
